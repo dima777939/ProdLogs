@@ -1,0 +1,18 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}
+    Операторы
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for user in users %}
+       <div class="row align-items-start h-20">
+           <div class="col-2 ">
+               <a href="#">{{ user.get_full_name }}.</a>
+           </div>
+           <div class="col-4">
+               Табельный номер {{ user.t_number }}
+           </div>
+       </div><br>
+        {% endfor %}
+    </div>
+{% endblock %}

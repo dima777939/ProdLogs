@@ -1,0 +1,23 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}
+    Авторизация
+{% endblock %}
+{% block content %}
+<div class="text-center"><br><br>
+    <h1>Авторизация</h1>
+    <p>Введите логин и пароль</p>
+    <form  action="." method="post">
+    {% csrf_token %}
+  <div class="form-group">
+    <label for="formGroupExampleInput">Логин</label><br>
+      {{ form.username }}
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Пароль</label><br>
+      {{ form.password }}
+  </div>
+  <button type="submit" class="btn btn-primary">Вход</button>
+</form>
+</div><br><br>
+    <h4 class="text-muted ml">Вы также можете <a href="{% url 'manufactur:register' %}">зарегистрироватся</a></h4>
+{% endblock %}

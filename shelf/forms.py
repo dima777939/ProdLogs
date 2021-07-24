@@ -1,0 +1,8 @@
+from django import forms
+
+
+class ShelfAddOrderForm(forms.Form):
+    ORDER_TIME_CHOICES = [(i, str(i)) for i in range(15, 195, 15)]
+
+    time = forms.TypedChoiceField(choices=ORDER_TIME_CHOICES, coerce=int)
+    update = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)

@@ -1,0 +1,35 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}{{ operation }}{% endblock %}
+{% block content %}
+    <br>
+    <h3>Операции</h3>
+  <ul class="nav nav-tabs">
+      {% for o in operations %}
+          <li class="nav-item">
+              <a {% if operation.slug == o.slug %} class="nav-link active" {% else %} class="nav-link"{% endif %} href=" {% url 'orders:order_p_list' o.slug %}">{{ o.name }}</a>
+          </li>
+      {% endfor %}
+  </ul><br>
+    <table class="table table-striped shelf">
+  <thead>
+    <tr>
+      <th scope="col">Кабель</th>
+      <th scope="col">Операция</th>
+      <th scope="col">Метраж</th>
+      <th>Выбор</th>
+      <th>Комментарий</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for order in orders_in_prod %}
+    <tr>
+      <th scope="row">{{ order.order }}</th>
+      <td>{{ operation }}</td>
+      <td>{{ order.order.footage }}</td>
+      <td><a href="{% url 'orders:order_p_id' operation.slug  order.id%}">Заказы в производство</a></td>
+      <td>{{ order.comment }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+{% endblock %}

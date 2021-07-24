@@ -1,0 +1,88 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}
+    {% if operation %}{{ operation.name }}{% else %}Заказы{% endif %}
+{% endblock %}
+{% block content %}
+    <br>
+    <h3>Заказы</h3>
+  <ul class="nav nav-tabs">
+     <li class="nav-item justify-content-center">
+        <a {% if not operation %}class="nav-link active" {% else %} class="nav-link"{% endif %} href="{% url 'orders:order_list' %}">Все заказы</a>
+     </li>
+      {% for o in operations %}
+          <li class="nav-item">
+              <a {% if operation.slug == o.slug %} class="nav-link active" {% else %} class="nav-link"{% endif %} href="{{ o.get_absolute_url }}">{{ o.name }}</a>
+          </li>
+      {% endfor %}
+  </ul><br>
+<div class="container-fluid ">
+    <div class="row g-2 " >
+        <div class="col">
+            <div class="p-4 border bg-light">
+<div class="container-fluid overflow-hidden text-center font-weight-bold">
+  <div class="row g-0">
+    <div class="col">
+     <div class="w-100 p-2 border">Номер партии</div>
+    </div>
+    <div class="col">
+      <div class="w-100 p-2 border bg-light">Операция</div>
+    </div>
+      <div class="col">
+      <div class="w-100 p-2 border bg-light">Кабель</div>
+    </div>
+      <div class="col">
+      <div class="w-100 p-2 border bg-light">Метраж</div>
+    </div>
+      <div class="col">
+      <div class="w-100 p-2 border bg-light">Дата завершения</div>
+    </div>
+      <div class="col">
+      <div class="w-100 p-2 border bg-light">На стеллаж</div>
+    </div>
+  </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% for order in orders %}
+<div class="container-fluid ">
+    <div class="row  g-2 " >
+        <div class="col">
+            <div class="p-4 border bg-light">
+<div {% if order.id in shelf.get_id %} class="container-fluid overflow-hidden text-center text-success" {% else %} class="container-fluid overflow-hidden text-center" {% endif %}>
+  <div class="row no-gutters g-0">
+    <div class="col-sm">
+     <div class="p-3 bg-light"><a href="{% url 'orders:order_detail' order.id order.slug %}"></a>{{ order.batch_number }}</div>
+    </div>
+    <div class="col-sm">
+      <div class="p-3 bg-light">{{ order.operation }}</div>
+    </div>
+    <div class="col-sm">
+     <div class="p-3 bg-light">{{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</div>
+    </div>
+    <div class="col-sm">
+     <div class="p-3 bg-light">{{ order.footage }}</div>
+    </div>
+    <div class="col-sm">
+     <div class="p-3  bg-light">{{ order.completion }}</div>
+    </div>
+    <div class="col-inline col-sm">
+     <div class="p-3  bg-light">
+         <form action="{% url 'shelf:shelf_add' order.id %}" method="post">
+             {{ shelf_order_form.time }}
+             {{ shelf_order_form.update }}
+             {% csrf_token %}
+         <input type="submit" value="В работу">
+         </form>
+     </div>
+    </div>
+  </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

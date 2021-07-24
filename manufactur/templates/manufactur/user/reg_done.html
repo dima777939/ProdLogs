@@ -1,0 +1,9 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+    <h1>Добро пожаловать {{ new_user.first_name }} !</h1>
+    <p>
+    Ваша учетная запись успешно создана.
+    <span> Теперь можно <a href="{% url 'manufactur:login' %}">войти</a> на сайт</span>
+    </p>
+{% endblock %}

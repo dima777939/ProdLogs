@@ -1,0 +1,78 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}Стеллаж{% endblock %}
+{% block content %}
+    <table class="table table-striped shelf">
+  <thead>
+    <tr>
+      <th scope="col">Номер партии</th>
+      <th scope="col">Операция</th>
+      <th scope="col">Кабель</th>
+      <th scope="col">Метраж</th>
+      <th scope="col">Время выполнения</th>
+      <th scope="col">Удалить</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for item in shelf %}
+      {% with order=item.order %}
+    <tr>
+      <th scope="row">{{ item.batch_number }}</th>
+      <td>{{ item.operation }}</td>
+      <td>{{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</td>
+      <td>{{ order.footage }}</td>
+      <td>
+          <form action="{% url 'shelf:shelf_add' order.id %}" method="post">
+              {{ item.update_time_form.time }}
+              {{ item.update_time_form.update }}
+              <input type="submit" value="Изменить">
+              {% csrf_token %}
+          </form>
+      </td>
+      <td><a class="text-dark" href="{% url 'shelf:shelf_remove' order.id %}">Удалить</a></td>
+    </tr>
+       {% endwith %}
+    {% endfor %}
+    <tr class="total">
+        <td>Общее время</td>
+        <td colspan="4"></td>
+        <td>{{ shelf.get_total_time }} мин.</td>
+    </tr>
+  </tbody>
+ </table>
+<p class="text-right">
+    <button type="button" class="btn btn-dark" >
+        <a href="{% url 'orders:order_list' %}" class="button-light text-light">Заказы</a>
+    </button>
+
+<button type="button" class="btn btn-dark" data-toggle="modal" data-target="#staticBackdrop">
+  Заказы в производство
+</button>
+</p>
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Подтвердите отправку заказов</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <h6>Будут отправлены следующие заказы:</h6><br>
+          <ul>
+              {% for item in shelf %}
+                <li>
+                    {{ item.order }}
+                </li>
+              {% endfor %}
+          </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-dark" ><a class="text-light" href="{% url 'shelf:shelf_get' %}">Подтвердить</a></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

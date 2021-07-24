@@ -1,0 +1,25 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}Готовые заказы{% endblock %}
+{% block content %}
+    <br>
+<h3>Выполненые заказы</h3>
+ <br>
+    <table class="table table-striped shelf">
+  <thead>
+    <tr>
+      <th scope="col">Кабель</th>
+      <th scope="col">Дата начала</th>
+      <th scope="col">Дата завершения</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for order in orders %}
+    <tr>
+      <th scope="row">{{ order }}</th>
+      <td>{{ order.created }}</td>
+      <td>{{ order.completion }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+{% endblock %}

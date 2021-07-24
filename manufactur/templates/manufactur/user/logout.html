@@ -1,0 +1,9 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}
+    Выход
+{% endblock %}
+{% block content %}
+    <h1>Выход</h1>
+    <p>Вы успешно вышли из аккаунта</p>
+    <h2><a href="{% url 'manufactur:login' %}">Вход</a> для дальнейшей работы</h2>
+{% endblock %}
