@@ -17,6 +17,11 @@
       <th scope="col">Операция</th>
       <th scope="col">Метраж</th>
       <th>Выбор</th>
+      {% if operation.slug in ITERATION_OPERATIONS %}
+      <th>Сделано катушек</th>
+      {% else %}
+      <th>Сделано метров</th>
+      {% endif %}
       <th>Комментарий</th>
     </tr>
   </thead>
@@ -26,7 +31,14 @@
       <th scope="row">{{ order.order }}</th>
       <td>{{ operation }}</td>
       <td>{{ order.order.footage }}</td>
-      <td><a href="{% url 'orders:order_p_id' operation.slug  order.id%}">Заказы в производство</a></td>
+      <td ><a class="link_button" href="{% url 'orders:order_p_id' operation.slug  order.id%}">Заказы в производство</a></td>
+      <td>Сделано{% if order.count_tara %} {{ order.count_tara }} {% else %} 0 {% endif %} из
+          {% if operation.slug in ITERATION_OPERATIONS %}
+            {{ order.order.cores }}
+          {% else %}
+            {{ order.order.footage }} м.
+          {% endif %}
+          </td>
       <td>{{ order.comment }}</td>
     </tr>
     {% endfor %}

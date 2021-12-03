@@ -4,6 +4,7 @@ from django.views import View
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
 from shelf.forms import ShelfAddOrderForm
+from .order_direction import OrderDirection as od
 
 
 class OrderListView(View):
@@ -26,28 +27,19 @@ class ProductionOrderView(View):
         'liniya-70',
         'lentoobmotka',
     ]
-    NO_FRLS = {
-        'gruboe-volochenie': 'liniya-70', 'liniya-70': 'bolshaya-skrutka', 'bolshaya-skrutka': 'liniya-90',
-        'liniya-90': 'buhtovka'
-    }
-    FRLS = {
-        'gruboe-volochenie': 'lentoobmotka', 'lentoobmotka': 'liniya-70', 'liniya-70': 'bolshaya-skrutka',
-        'bolshaya-skrutka': 'liniya-90', 'liniya-90': 'buhtovka'
-    }
-    NO_FRLS_PNG = {
-        'gruboe-volochenie': 'liniya-70', 'liniya-70': 'liniya-90', 'liniya-90': 'buhtovka'
-    }
-    DESIGN_CABLE_CHECK = {
-
-    }
 
     def get(self, request, operation_slug, id_open_form=None):
         operator = request.user
         operation = get_object_or_404(Operation, slug=operation_slug)
         if id_open_form:
-            order_in_prod = get_object_or_404(ProductionOrders, id=id_open_form)
+            order_in_prod = get_object_or_404(ProductionOrders, id=id_open_form, finished=False)
+
             data = {'order': order_in_prod.order, 'operation': operation, 'operator': operator}
             order_in_prod_form = OrderLogForm(initial=data)
+            # order_in_prod_form = OrderLogForm()
+            # order_in_prod_form.fields['order'].queryset = order_in_prod.order
+            # order_in_prod_form.fields['operation'].queryset = operation
+            # order_in_prod_form.fields['operator'].queryset = operator
             return render(request, 'orders/order_production_form.html', {'order_in_prod_form': order_in_prod_form,
                                                                          'order_in_prod': order_in_prod})
         operations = Operation.objects.all()
@@ -56,7 +48,8 @@ class ProductionOrderView(View):
         return render(request, 'orders/order_production_list.html', {'operation': operation,
                                                                      'orders_in_prod': orders_in_prod,
                                                                      'operator': operator, 'operations': operations,
-                                                                     'order_in_prod_form': order_in_prod_form})
+                                                                     'order_in_prod_form': order_in_prod_form,
+                                                                     'ITERATION_OPERATIONS': self.ITERATION_OPERATIONS})
 
     def post(self, request, operation_slug):
         order_log_form = OrderLogForm(data=request.POST)
@@ -65,34 +58,24 @@ class ProductionOrderView(View):
             # Сохранение данных в таблицу из формы
             order_log = order_log_form.save()
             order_prod = get_object_or_404(Order, id=order_log.order.id)
-            order_in_prod = get_object_or_404(ProductionOrders, order=order_prod)
+            order_in_prod = get_object_or_404(ProductionOrders, order=order_prod, finished=False)
             # Проверка заказа о переводе на следующую операцию
-            if (operation_slug in self.ITERATION_OPERATIONS) or \
-                    ((order_prod.footage - order_log.total_in_meters) > 100):
-                count_order_in_log = OrderLog.objects.filter(order=order_log.order, operation=order_log.operation).count()
-                count_iter = order_log.order.cores
-                if int(count_iter) > int(count_order_in_log) or \
-                    ((order_prod.footage - order_log.total_in_meters) > 100):
+            if operation_slug in self.ITERATION_OPERATIONS:
+                next_oper = od.allow_next_operation(order_in_prod)
+                if next_oper:
                     return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
+            # Деление заказа
+            if operation_slug not in self.ITERATION_OPERATIONS and (order_prod.footage - (order_log.total_in_meters +
+                                                            order_in_prod.count_tara)) > 100:
+                od.division_order(order_prod, order_log, order_in_prod)
+                return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
             # Удаление заказа с производства
-            ProductionOrders.objects.filter(order=order_prod, order__operation__slug=operation_slug).delete()
+            ProductionOrders.objects.filter(order=order_prod, order__operation__slug=operation_slug,
+                                            finished=False).update(finished=True)
             # Перевод заказа в таблице Order на след операцию
-            # Круглый кабель
-            if order_prod.design == 'нг' and order_prod.purpose in ['LS', 'LTx']:
-                get_operation = self.NO_FRLS.get(operation_slug, operation_slug)
-                operation = get_object_or_404(Operation, slug=get_operation)
-                Order.objects.filter(id=order_prod.id).update(operation=operation, in_production=False)
-            # Круглый кабель FRLS
-            elif order_prod.design == 'нг' and order_prod.purpose in ['FRLS', 'FRLTx']:
-                get_operation = self.NO_FRLS.get(operation_slug, operation_slug)
-                operation = get_object_or_404(Operation, slug=get_operation)
-                Order.objects.filter(id=order_prod.id).update(operation=operation, in_production=False)
-            # Плоский кабель
-            else:
-                get_operation = self.NO_FRLS_PNG.get(operation_slug, operation_slug)
-                operation = get_object_or_404(Operation, slug=get_operation)
-                Order.objects.filter(id=order_prod.id).update(operation=operation, in_production=False)
+            od.next_operation(od, order_prod, operation_slug)
             return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
+        return redirect(reverse('orders:order_p_list', args=[operation_slug]))
 
 
 class OrderDetailView(View):

@@ -93,14 +93,13 @@
       <div class="modal-body">
           <h6>Заполните форму</h6><br>
            <div>
-               <table>
-                <form action="{% url 'orders:order_p_list' order_in_prod.order.operation.slug %}" method="post">
+               <form action="{% url 'orders:order_p_list' order_in_prod.order.operation.slug %}" method="post">
+                 <table class="this-page">
                     {{ order_in_prod_form.as_table }}
+                 </table>
                     {% csrf_token %}
-                </table>
-                <input class="bg-dark text-light" type="submit" value="Отправить">
+                 <input class="bg-dark text-light" type="submit" value="Отправить">
                </form>
-
             </div>
       </div>
     </div>

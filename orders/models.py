@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-
 from manufactur.models import User
 
 
@@ -69,7 +68,7 @@ class Order(models.Model):
     updated = models.DateTimeField(verbose_name='Дата обновления', auto_now=True)
     finished = models.BooleanField(verbose_name='Готов', default=False, db_index=True)
     discard = models.BooleanField(verbose_name='Брак', default=False, db_index=True)
-    in_production = models.BooleanField(default=False, db_index=True)
+    in_production = models.BooleanField(default=False, db_index=True, verbose_name='В производстве')
 
     class Meta:
         ordering = ('operation', 'batch_number',)
@@ -88,6 +87,7 @@ class Order(models.Model):
 class ProductionOrders(models.Model):
 
     order = models.ForeignKey(Order, related_name='production', on_delete=models.PROTECT, verbose_name='Заказ')
+    count_tara = models.PositiveSmallIntegerField(blank=True, default=0)
     comment = models.CharField(max_length=200, verbose_name='Комментарий')
     finished = models.BooleanField(default=False, verbose_name='Готов', db_index=True)
 
@@ -118,18 +118,18 @@ class OrderLog(models.Model):
     order = models.ForeignKey(Order, related_name='log', on_delete=models.PROTECT, verbose_name='Заказ', db_index=True)
     operation = models.ForeignKey(Operation, on_delete=models.PROTECT, verbose_name='Операция', db_index=True)
     operator = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name='Оператор', db_index=True)
-    color_cores = models.CharField(max_length=3, choices=COLOR_CORES_CHOICE, verbose_name='Цвет жилы')
-    container = models.CharField(max_length=3,choices=CONTAINER_CHOICE, verbose_name='Тара')
+    color_cores = models.CharField(max_length=3, choices=COLOR_CORES_CHOICE, default='нет', verbose_name='Цвет жилы')
+    container = models.CharField(max_length=3, choices=CONTAINER_CHOICE, default='ж/б', verbose_name='Тара')
     number_container = models.PositiveSmallIntegerField(verbose_name='Номер тары')
     total_in_meters = models.PositiveSmallIntegerField(verbose_name='Метраж/Кол-во')
     date_finished = models.DateField(auto_now_add=True, verbose_name='Дата')
-    iteration = models.PositiveSmallIntegerField(blank=True, default=1)
+    iteration = models.PositiveSmallIntegerField(blank=True, default=0)
     otk = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ('date_finished',)
         verbose_name = 'Log операции'
-        verbose_name_plural = 'Список операций'
+        verbose_name_plural = 'Лог операций'
 
     def __str__(self):
         return self.order.__str__()
