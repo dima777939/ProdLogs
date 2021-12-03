@@ -1,4 +1,5 @@
 from django import forms
+from orders.models import ProductionOrders
 
 
 class ShelfAddOrderForm(forms.Form):
@@ -6,3 +7,7 @@ class ShelfAddOrderForm(forms.Form):
 
     time = forms.TypedChoiceField(choices=ORDER_TIME_CHOICES, coerce=int)
     update = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
+
+
+class ShelfAddCommentForm(forms.Form):
+    comment = forms.CharField(max_length=200)

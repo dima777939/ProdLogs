@@ -11,16 +11,22 @@ class Shelf(object):
             shelf = self.session[settings.SHELF_SESSION_ID] = {}
         self.shelf = shelf
 
-    def add(self, order, time=60, update_time=False):
+    def add(self, order, time=60, update_time=False,):
         order_id = str(order.id)
         if order_id not in self.shelf:
-            self.shelf[order_id] = {'batch_number': str(order.batch_number), 'time': 0, 'operation': str(order.operation),
+            self.shelf[order_id] = {'batch_number': str(order.batch_number), 'time': 0,
+                                    'operation': str(order.operation),
                                     'cable': str(f'{ order.plastic } { order.design } { order.purpose } { order.cores }'
-                                                 f'x{ order.crosssection }'), 'footage': str(order.footage)}
+                                    f'x{ order.crosssection }'), 'footage': str(order.footage), 'comment': ''}
         if update_time:
             self.shelf[order_id]['time'] = time
         else:
             self.shelf[order_id]['time'] += time
+        self.save()
+
+    def add_comment(self, order, comment):
+        order_id = str(order.id)
+        self.shelf[order_id]['comment'] = comment
         self.save()
 
     def get_total_time(self):

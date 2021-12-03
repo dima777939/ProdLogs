@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.views import View
 from orders.models import Order, ProductionOrders
 from .shelf import Shelf
-from .forms import ShelfAddOrderForm
+from .forms import ShelfAddOrderForm, ShelfAddCommentForm
 
 
 class ShelfAddView(View):
@@ -28,16 +28,30 @@ class ShelfRemoveView(View):
         shelf.remove(order)
         return redirect(reverse('shelf:shelf_detail'))
 
+    def post(self, request, order_id):
+        shelf = Shelf(request)
+        form = ShelfAddCommentForm(request.POST)
+        order = get_object_or_404(Order, id=order_id)
+        if form.is_valid():
+            cd = form.cleaned_data
+            shelf.add_comment(order=order, comment=cd['comment'])
+            return redirect('shelf:shelf_detail')
+
 
 class ShelfDetailView(View):
 
     def get(self, request):
         shelf = Shelf(request)
+        comment_form = ShelfAddCommentForm()
         for item in shelf:
             item['update_time_form'] = ShelfAddOrderForm(
                 initial={'time': item['time'], 'update': True}
             )
-        return render(request, 'shelf/shelf_detail.html', {'shelf': shelf})
+            item['comment_form'] = ShelfAddCommentForm(
+                initial={'comment': item['comment']}
+            )
+
+        return render(request, 'shelf/shelf_detail.html', {'shelf': shelf,})
 
 
 class ShelfGetView(View):
@@ -45,7 +59,7 @@ class ShelfGetView(View):
     def get(self, request):
         shelf = Shelf(request)
         for item in shelf:
-            ProductionOrders.objects.create(order=item['order'], comment=item['time'])
+            ProductionOrders.objects.create(order=item['order'], comment=item['comment'])
             Order.objects.filter(id=item['order'].id).update(in_production=True)
         shelf.clear()
         return redirect(reverse('shelf:shelf_detail'))

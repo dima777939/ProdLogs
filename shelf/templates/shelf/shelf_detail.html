@@ -9,6 +9,7 @@
       <th scope="col">Кабель</th>
       <th scope="col">Метраж</th>
       <th scope="col">Время выполнения</th>
+      <th scope="col">Комментарий</th>
       <th scope="col">Удалить</th>
     </tr>
   </thead>
@@ -28,13 +29,20 @@
               {% csrf_token %}
           </form>
       </td>
+      <td>
+          <form action="{% url 'shelf:shelf_remove' order.id %}" method="post">
+                  {{ item.comment_form.comment }}
+              {% csrf_token %}
+          <input type="submit" value="Коментарий">
+          </form>
+      </td>
       <td><a class="text-dark" href="{% url 'shelf:shelf_remove' order.id %}">Удалить</a></td>
     </tr>
        {% endwith %}
     {% endfor %}
     <tr class="total">
         <td>Общее время</td>
-        <td colspan="4"></td>
+        <td colspan="5"></td>
         <td>{{ shelf.get_total_time }} мин.</td>
     </tr>
   </tbody>
@@ -74,5 +82,6 @@
     </div>
   </div>
 </div>
+
 
 {% endblock %}
