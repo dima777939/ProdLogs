@@ -121,8 +121,8 @@ class OrderLog(models.Model):
     color_cores = models.CharField(max_length=3, choices=COLOR_CORES_CHOICE, default='нет', verbose_name='Цвет жилы')
     container = models.CharField(max_length=3, choices=CONTAINER_CHOICE, default='ж/б', verbose_name='Тара')
     number_container = models.PositiveSmallIntegerField(verbose_name='Номер тары')
-    total_in_meters = models.PositiveSmallIntegerField(verbose_name='Метраж/Кол-во')
-    date_finished = models.DateField(auto_now_add=True, verbose_name='Дата')
+    total_in_meters = models.PositiveSmallIntegerField(verbose_name='Метраж')
+    date_finished = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     iteration = models.PositiveSmallIntegerField(blank=True, default=0)
     otk = models.BooleanField(default=False, db_index=True)
 

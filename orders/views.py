@@ -4,7 +4,7 @@ from django.views import View
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
 from shelf.forms import ShelfAddOrderForm
-from .order_direction import OrderDirection as od
+from .order_direction import OrderDirection as OD
 
 
 class OrderListView(View):
@@ -27,19 +27,21 @@ class ProductionOrderView(View):
         'liniya-70',
         'lentoobmotka',
     ]
+    BUHTOVKA = [
+        'buhtovka',
+    ]
+    LINE_OPERATIONS = [
+        'bolshaya-skrutka',
+        'liniya-90',
+    ]
 
     def get(self, request, operation_slug, id_open_form=None):
         operator = request.user
         operation = get_object_or_404(Operation, slug=operation_slug)
         if id_open_form:
             order_in_prod = get_object_or_404(ProductionOrders, id=id_open_form, finished=False)
-
             data = {'order': order_in_prod.order, 'operation': operation, 'operator': operator}
             order_in_prod_form = OrderLogForm(initial=data)
-            # order_in_prod_form = OrderLogForm()
-            # order_in_prod_form.fields['order'].queryset = order_in_prod.order
-            # order_in_prod_form.fields['operation'].queryset = operation
-            # order_in_prod_form.fields['operator'].queryset = operator
             return render(request, 'orders/order_production_form.html', {'order_in_prod_form': order_in_prod_form,
                                                                          'order_in_prod': order_in_prod})
         operations = Operation.objects.all()
@@ -59,21 +61,21 @@ class ProductionOrderView(View):
             order_log = order_log_form.save()
             order_prod = get_object_or_404(Order, id=order_log.order.id)
             order_in_prod = get_object_or_404(ProductionOrders, order=order_prod, finished=False)
-            # Проверка заказа о переводе на следующую операцию
+            # Сколько в заказе сделано катушек
             if operation_slug in self.ITERATION_OPERATIONS:
-                next_oper = od.allow_next_operation(order_in_prod)
-                if next_oper:
+                if OD.allow_next_operation(order_in_prod):
                     return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
-            # Деление заказа
-            if operation_slug not in self.ITERATION_OPERATIONS and (order_prod.footage - (order_log.total_in_meters +
-                                                            order_in_prod.count_tara)) > 100:
-                od.division_order(order_prod, order_log, order_in_prod)
+            # Бухтова
+            elif operation_slug in self.BUHTOVKA and (order_prod.footage - (order_log.total_in_meters *
+                                                        order_log.number_container + order_in_prod.count_tara)) > 20:
+                OD.buhtovka(order_prod, order_log, order_in_prod)
                 return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
-            # Удаление заказа с производства
-            ProductionOrders.objects.filter(order=order_prod, order__operation__slug=operation_slug,
-                                            finished=False).update(finished=True)
-            # Перевод заказа в таблице Order на след операцию
-            od.next_operation(od, order_prod, operation_slug)
+            # Деление заказа по метражу на барабанах
+            elif operation_slug in self.LINE_OPERATIONS and (order_prod.footage - (order_log.total_in_meters +
+                                                                                   order_in_prod.count_tara)) > 100:
+                OD.division_order(order_prod, order_log, order_in_prod)
+                return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
+            OD.next_operation(OD, order_prod, operation_slug)
             return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
         return redirect(reverse('orders:order_p_list', args=[operation_slug]))
 

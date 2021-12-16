@@ -5,25 +5,19 @@ from django import forms
 
 
 class OrderLogForm(ModelForm):
-    order = ModelChoiceField(queryset=Order.objects.all())
-    operator = ModelChoiceField(queryset=User.objects.all())
-    operation = ModelChoiceField(queryset=Operation.objects.all())
-    # order = forms.CharField(initial=Order.objects.all())
-    # operator = forms.CharField(initial=User.objects.all())
-    # operation = forms.CharField(initial=Operation.objects.all())
+
+    def __init__(self, **data):
+        super(OrderLogForm, self).__init__(**data)
+        self.form_for_buhtovka() if len(data) else None
 
     class Meta:
         model = OrderLog
         fields = ['order', 'operation', 'operator', 'color_cores', 'container',
                   'number_container', 'total_in_meters']
 
-#     def __init__(self, *args, **kwargs):
-#         operator = kwargs.pop('operator', '')
-#         order = kwargs.pop('order', '')
-#         operation = kwargs.pop('operation', '')
-#         super(OrderLogForm, self).__init__(*args, **kwargs)
-#         self.fields['']
-#
-# class OrderForm(forms.Form):
-#
-#     order = forms.EmailField()
+    def form_for_buhtovka(self):
+        if len(self.initial) and self.initial['operation'].slug == 'buhtovka':
+            self.fields['color_cores'].initial = 'б/ц'
+            self.fields['container'].initial = 'бух'
+            self.fields['number_container'].label = 'Кол-во бухт'
+            self.fields['total_in_meters'].label = 'Метраж бухты'
