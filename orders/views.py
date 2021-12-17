@@ -92,3 +92,10 @@ class OrderFinish(View):
     def get(self, request):
         orders = Order.objects.filter(finished=True)
         return render(request, 'orders/order_finish_list.html', {'orders': orders})
+
+
+class OrderLogView(View):
+
+    def get(self, request, order_id):
+        order_log = OrderLog.objects.filter(order_id=order_id)
+        return render(request, 'orders/order_log.html', {'order_log': order_log})

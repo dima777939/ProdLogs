@@ -19,7 +19,9 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(ProductionOrders)
 class ProductionOrdersAdmin(admin.ModelAdmin):
-    list_display = ['order', 'comment']
+    list_display = ['order', 'comment', 'finished']
+    list_filter = ['finished']
+    list_editable = ['finished']
 
 
 @admin.register(OrderLog)

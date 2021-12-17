@@ -10,4 +10,5 @@ urlpatterns = [
     path('production/finish', views.OrderFinish.as_view(), name='orders_finish'),
     path('<slug:operation_slug>/', views.OrderListView.as_view(), name='order_list_by_category'),
     path('<int:id>/<slug:slug>/', views.OrderDetailView.as_view(), name='order_detail'),
+    path('log/<int:order_id>', views.OrderLogView.as_view(), name='order_log')
 ]

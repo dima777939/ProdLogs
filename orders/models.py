@@ -133,3 +133,6 @@ class OrderLog(models.Model):
 
     def __str__(self):
         return self.order.__str__()
+
+    def get_absolut_url(self):
+        return reverse('orders:order_log', args=[self.order.id])
