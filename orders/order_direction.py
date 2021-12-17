@@ -54,8 +54,10 @@ class OrderDirection:
             if purpose in key:
                 get_operation = get_design[key].get(operation_slug, operation_slug)
                 operation = get_object_or_404(Operation, slug=get_operation)
+                print('pre finish')
                 Order.objects.filter(id=order_prod.id).update(operation=operation, in_production=False,
-                                     finished=True if order_prod.slug in self.FINISH_OPERATIONS else False)
+                                     finished=self.check_finished(self, operation_slug))
+                print('finish')
 
     @staticmethod
     def buhtovka(order_prod, order_log, order_in_prod):
@@ -65,3 +67,6 @@ class OrderDirection:
         order_in_prod.comment += f'Сделано {order_log.number_container} бухт по {order_log.total_in_meters} м.' \
                                  f' Остаток {residual} м. /  '
         order_in_prod.save()
+
+    def check_finished(self, slug):
+        return True if slug in self.FINISH_OPERATIONS else False
