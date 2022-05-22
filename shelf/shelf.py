@@ -2,7 +2,7 @@ from orders.models import Order
 from django.conf import settings
 
 
-class Shelf(object):
+class Shelf:
 
     def __init__(self, request):
         self.session = request.session
@@ -10,6 +10,18 @@ class Shelf(object):
         if not shelf:
             shelf = self.session[settings.SHELF_SESSION_ID] = {}
         self.shelf = shelf
+
+    def __iter__(self):
+        order_ids = self.shelf.keys()
+        orders = Order.objects.filter(id__in=order_ids)
+        shelf = self.shelf.copy()
+        for order in orders:
+            shelf[str(order.id)]['order'] = order
+        for item in shelf.values():
+            yield item
+
+    def __len__(self):
+        return len(self.shelf)
 
     def add(self, order, time=60, update_time=False,):
         order_id = str(order.id)
@@ -43,20 +55,8 @@ class Shelf(object):
             del self.shelf[order_id]
             self.save()
 
-    def __len__(self):
-        return len(self.shelf)
-
     def save(self):
         self.session.modified = True
-
-    def __iter__(self):
-        order_ids = self.shelf.keys()
-        orders = Order.objects.filter(id__in=order_ids)
-        shelf = self.shelf.copy()
-        for order in orders:
-            shelf[str(order.id)]['order'] = order
-        for item in shelf.values():
-            yield item
 
     def get_link(self):
         return 'gruboe-volochenie'

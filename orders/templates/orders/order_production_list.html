@@ -32,7 +32,7 @@
       <td>{{ operation }}</td>
       <td>{{ order.order.footage }}</td>
       <td ><a class="link_button" href="{% url 'orders:order_p_id' operation.slug  order.id%}">Заказы в производство</a></td>
-      <td>Сделано{% if order.count_tara %} {{ order.count_tara }} м. {% else %} 0 м.{% endif %} из
+      <td>Сделано{% if order.count_tara %} {{ order.count_tara }}  {% else %} 0 {% endif %} из
           {% if operation.slug in ITERATION_OPERATIONS %}
             {{ order.order.cores }}
           {% else %}

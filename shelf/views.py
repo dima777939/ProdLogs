@@ -42,7 +42,6 @@ class ShelfDetailView(View):
 
     def get(self, request):
         shelf = Shelf(request)
-        comment_form = ShelfAddCommentForm()
         for item in shelf:
             item['update_time_form'] = ShelfAddOrderForm(
                 initial={'time': item['time'], 'update': True}
@@ -50,8 +49,7 @@ class ShelfDetailView(View):
             item['comment_form'] = ShelfAddCommentForm(
                 initial={'comment': item['comment']}
             )
-
-        return render(request, 'shelf/shelf_detail.html', {'shelf': shelf,})
+        return render(request, 'shelf/shelf_detail.html', {'shelf': shelf})
 
 
 class ShelfGetView(View):
