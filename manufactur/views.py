@@ -49,7 +49,7 @@ class UserLoginView(View):
             else:
                 return HttpResponse('Аккаунт не активен')
         else:
-            return HttpResponse('Неправильный логин или пароль')
+            return render(request, 'manufactur/user/login.html', {'form': form})
 
 
 class UserListView(View):

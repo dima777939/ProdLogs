@@ -1,0 +1,27 @@
+{% extends 'manufactur/base.html' %}
+{% load bootstrap4 %}
+{% block title %}{{ operation }}{% endblock %}
+{% block content %}
+	<section class="form_prod">
+	<div class="container-sm">
+		<div class="row border-1  card-body">
+			<div class="col-md-6 col-xl-4">
+
+				<h2>Операция {{ operation }}</h2>
+				<form action="{% url 'orders:order_p_list' operation.slug  %}" method="post">
+					{% csrf_token %}
+					{% bootstrap_field order_in_prod_form.order %}
+					{% bootstrap_field order_in_prod_form.operation %}
+					{% bootstrap_field order_in_prod_form.operator %}
+					{% bootstrap_field order_in_prod_form.color_cores %}
+					{% bootstrap_field order_in_prod_form.container %}
+					{% bootstrap_field order_in_prod_form.number_container %}
+					{% bootstrap_field order_in_prod_form.total_in_meters %}
+					{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
+				</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	</section>
+{% endblock %}

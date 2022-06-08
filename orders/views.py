@@ -42,8 +42,9 @@ class ProductionOrderView(View):
             order_in_prod = get_object_or_404(ProductionOrders, id=id_open_form, finished=False)
             data = {'order': order_in_prod.order, 'operation': operation, 'operator': operator}
             order_in_prod_form = OrderLogForm(initial=data)
-            return render(request, 'orders/order_production_form.html', {'order_in_prod_form': order_in_prod_form,
-                                                                         'order_in_prod': order_in_prod})
+            return render(request, 'orders/order_production_in_operation.html', {'operation': operation,
+                                                                            'order_in_prod_form': order_in_prod_form,
+                                                                            'operator': operator})
         operations = Operation.objects.all()
         orders_in_prod = ProductionOrders.objects.filter(finished=False, order__operation=operation)
         order_in_prod_form = OrderLogForm()
@@ -77,7 +78,12 @@ class ProductionOrderView(View):
                 return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
             OD.next_operation(OD, order_prod, operation_slug)
             return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
-        return redirect(reverse('orders:order_p_list', args=[operation_slug]))
+        operation = get_object_or_404(Operation, slug=operation_slug)
+        order_in_prod = get_object_or_404(Order, id=request.POST['order'])
+        return render(request, 'orders/order_production_in_operation.html', {'order_in_prod_form': order_log_form,
+                                                                              'operation': operation,
+                                                                             })
+
 
 
 class OrderDetailView(View):

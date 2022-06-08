@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'manufactur.apps.AuthConfig',
     'orders.apps.OrdersConfig',
     'shelf.apps.ShelfConfig',
+    'bootstrap4',
 ]
 
 MIDDLEWARE = [

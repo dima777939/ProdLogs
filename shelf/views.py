@@ -17,7 +17,7 @@ class ShelfAddView(View):
             shelf.add(order=order, time=cd['time'], update_time=cd['update'])
             if cd['update']:
                 return redirect('shelf:shelf_detail')
-        return redirect('orders:order_list')
+        return redirect(reverse('orders:order_list_by_category', args=[order.operation.slug]))
 
 
 class ShelfRemoveView(View):
