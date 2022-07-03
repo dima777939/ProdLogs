@@ -3,16 +3,13 @@
     Операторы
 {% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="block block_card">
         {% for user in users %}
-       <div class="row align-items-start h-20">
-           <div class="col-2 ">
-               <a href="#">{{ user.get_full_name }}.</a>
-           </div>
-           <div class="col-4">
-               Табельный номер {{ user.t_number }}
-           </div>
-       </div><br>
+			<div class="block carder block_user">
+               <a href="{{ user.get_absolute_url }}">{{ user.get_full_name }}.</a>
+				<div>Табельный номер {{ user.t_number }}</div>
+				<div>Первый вход  {{ user.date_joined }}</div>
+			</div>
         {% endfor %}
     </div>
 {% endblock %}

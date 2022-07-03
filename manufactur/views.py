@@ -1,11 +1,16 @@
-from django.shortcuts import render, redirect
+import datetime
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
-from .forms import LoginForm, RegistrationForm
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
-from .models import User
+from .models import User, Contact
+from orders.models import OrderLog
+from .forms import LoginForm, RegistrationForm
+
 
 
 class MainView(View):
@@ -52,6 +57,7 @@ class UserLoginView(View):
             return render(request, 'manufactur/user/login.html', {'form': form})
 
 
+@method_decorator(login_required, name="dispatch")
 class UserListView(View):
 
     def get(self, request, team=None):
@@ -61,3 +67,32 @@ class UserListView(View):
             users = User.objects.filter(is_active=True)
         return render(request, 'manufactur/user/list_user.html', {'users': users})
 
+
+@method_decorator(login_required, name="dispatch")
+class UserDetailView(View):
+
+    def get(self, request,  username):
+        user = get_object_or_404(User, username=username, is_active=True)
+        orders = OrderLog.objects.filter(operator=user).order_by("date_finished")
+        return render(request, 'manufactur/user/user_detail.html', {"user": user, "orders": orders})
+
+
+@method_decorator(login_required, name="dispatch")
+class UserFollowView(View):
+
+    def post(self, request):
+        if request.is_ajax():
+            user_id = request.POST.get("id")
+            action = request.POST.get("action")
+            if user_id and action:
+                try:
+                    user = User.objects.get(id=user_id)
+                    if action == 'follow':
+                        Contact.objects.get_or_create(user_from=request.user, user_to=user)
+                    else:
+                        Contact.objects.filter(user_from=request.user, user_to=user).delete()
+                    return JsonResponse({'status': 'ok'})
+                except User.DoesNotExist:
+                    return JsonResponse({'status': 'ok'})
+            return JsonResponse({'status': 'ok'})
+        return HttpResponse("Запрос принимается только с кнопки 'Подписаться'")

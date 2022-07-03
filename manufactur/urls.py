@@ -10,6 +10,8 @@ urlpatterns = [
     path('logout', auth_views.LogoutView.as_view(template_name='manufactur/user/logout.html'), name='logout'),
     path('users/', views.UserListView.as_view(), name='list_users'),
     path('user/<int:team>/', views.UserListView.as_view(), name='team_list_user'),
+    path('user/follow/', views.UserFollowView.as_view(), name="user_follow"),
+    path('user/<str:username>', views.UserDetailView.as_view(), name="user_detail"),
     path('register/', views.UserRegisterView.as_view(), name='register'),
     path('register/success/', views.UserRegisterView.as_view(), name='reg-done'),
 ]

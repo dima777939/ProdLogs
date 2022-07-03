@@ -1,0 +1,88 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}
+    Операторы
+{% endblock %}
+{% block content %}
+    <div class="block block_card block_user carder">
+		<div>
+			<div>{{ user.first_name }}</div>
+			<div>{{ user.last_name }}</div>
+			<div>{{ user.last_login }}</div>
+		<div class="count">Подписок: <p>{{ user.count_followers }}</p></div>
+		<a href="#" data-id="{{ user.id }}" data-action="{% if request.user in user.followers.all %}un
+		{% endif %}follow" class="follow link_button link-dark">
+		{% if request.user not in user.followers.all %}
+			Подписаться
+		{% else %}
+			Отписаться
+		{% endif %}
+		</a>
+		</div>
+	</div>
+	<h2>Заказы</h2>
+	{% for order in orders %}
+		<div class="container-fluid ">
+			<div class="row  g-2 " >
+				<div class="col">
+					<div class="p-1 border bg-light">
+						<div class="container-fluid overflow-hidden text-center" >
+						  <div class="row no-gutters g-0">
+							<div class="col-sm">
+							 <div class="p-2 bg-light">{{ order.order.batch_number }}</div>
+							</div>
+							<div class="col-sm">
+							  <div class="p-2 bg-light">{{ order.operation }}</div>
+							</div>
+							<div class="col-sm">
+							 <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order.order.id %}"
+								 onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
+								 {{ order.order }}</a></div>
+							</div>
+							<div class="col-sm">
+							 <div class="p-2 bg-light">{{ order.number_container }}</div>
+							</div>
+							<div class="col-sm">
+							 <div class="p-2  bg-light">{{ order.date_finished }}</div>
+							</div>
+							<div class="col-sm">
+							 <div class="p-2 bg-light">{{ order.total_in_meters }}</div>
+							</div>
+							<div class="col-sm">
+							 <div class="p-2 bg-light">{{ order.date_finished }}</div>
+							</div>
+						  </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+{% endblock %}
+{% block domready %}
+	$('a.follow').click(function(e){
+    e.preventDefault();
+    $.post('{% url "manufactur:user_follow" %}',
+      {
+          action: $(this).data('action'),
+		  id: $(this).data('id'),
+      },
+      function(data){
+        if (data['status'] == 'ok') {
+          var previous_action = $('a.follow').data('action');
+
+          // toggle data-action
+          $('a.follow').data('action',
+            previous_action == 'follow' ? 'unfollow' : 'follow');
+          // toggle link text
+          $('a.follow').text(
+            previous_action == 'follow' ? 'Отписаться' : 'Подписаться');
+
+          // update total followers
+          var previous_followers = parseInt(
+            $('div.count p').text());
+          $('div.count p').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
+        }
+      }
+    );
+  });
+{% endblock %}

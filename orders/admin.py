@@ -14,7 +14,7 @@ class OrderAdmin(admin.ModelAdmin):
                     'footage', 'completion', 'finished', 'discard', 'in_production']
     list_filter = ['operation', 'design', 'purpose', 'cores', 'crosssection', 'finished', 'discard', 'in_production']
     list_editable = ['footage', 'finished', 'discard', 'crosssection', 'in_production']
-    prepopulated_fields = {'slug': ('batch_number', 'design', 'purpose', 'cores', 'crosssection')}
+    prepopulated_fields = {'slug': ('batch_number', 'crosssection')}
 
 
 @admin.register(ProductionOrders)

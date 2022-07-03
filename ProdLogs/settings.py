@@ -14,6 +14,8 @@ import os
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from django.template.context_processors import media
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'manufactur.apps.AuthConfig',
     'orders.apps.OrdersConfig',
     'shelf.apps.ShelfConfig',
+    'actions.apps.ActionsConfig',
     'bootstrap4',
 ]
 
@@ -124,7 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
@@ -133,5 +136,7 @@ AUTH_USER_MODEL = 'manufactur.User'
 LOGIN_REDIRECT_URL = 'manufactur'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
+
+
 
 SHELF_SESSION_ID = 'shelf'

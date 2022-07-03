@@ -1,8 +1,6 @@
-from django.forms import ModelForm, ModelChoiceField, Textarea
-from django.shortcuts import get_object_or_404
+from django.forms import ModelForm
 
-from .models import OrderLog, Order, Operation, ProductionOrders
-from manufactur.models import User
+from .models import OrderLog
 from django import forms
 
 ITERATION_OPERATIONS = [
