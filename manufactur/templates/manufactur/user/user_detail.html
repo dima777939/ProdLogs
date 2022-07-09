@@ -3,14 +3,14 @@
     Операторы
 {% endblock %}
 {% block content %}
-    <div class="block block_card block_user carder">
-		<div>
+	<div class="d-block">
+    	<div class="block_action block_user carder">
 			<div>{{ user.first_name }}</div>
 			<div>{{ user.last_name }}</div>
 			<div>{{ user.last_login }}</div>
-		<div class="count">Подписок: <p>{{ user.count_followers }}</p></div>
+		<div class="count"><p>Подписок:  </p><p class="follow"> {{ user.count_followers }}</p></div>
 		<a href="#" data-id="{{ user.id }}" data-action="{% if request.user in user.followers.all %}un
-		{% endif %}follow" class="follow link_button link-dark">
+		{% endif %}follow" class="follow link_button link_button_follow link-dark">
 		{% if request.user not in user.followers.all %}
 			Подписаться
 		{% else %}
@@ -79,8 +79,8 @@
 
           // update total followers
           var previous_followers = parseInt(
-            $('div.count p').text());
-          $('div.count p').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
+            $('div.count p.follow').text());
+          $('div.count p.follow').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
         }
       }
     );

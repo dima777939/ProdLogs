@@ -5,7 +5,6 @@ from .models import Order, Operation, ProductionOrders, OrderLog
 
 
 class OrderDirection:
-
     DESIGN_CABLE_CHECK = {
         'нг': {
             ('LS', 'LSLTx',): {
@@ -24,7 +23,6 @@ class OrderDirection:
         }
     }
     FINISH_OPERATIONS = ['buhtovka']
-
 
     @staticmethod
     def allow_next_operation(order_in_prod):
@@ -56,7 +54,7 @@ class OrderDirection:
                 operation = get_object_or_404(Operation, slug=get_operation)
                 print('pre finish')
                 Order.objects.filter(id=order_prod.id).update(operation=operation, in_production=False,
-                                     finished=self.check_finished(self, operation_slug))
+                                                              finished=self.check_finished(self, operation_slug))
                 print('finish')
 
     @staticmethod

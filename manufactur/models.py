@@ -2,11 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse_lazy
 
-
-
-
-
-
 class User(AbstractUser):
     TEAM = (
         (0, 0),
@@ -44,6 +39,9 @@ class User(AbstractUser):
     def count_followers(self):
         return self.followers.count()
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
 
 class Contact(models.Model):
@@ -57,5 +55,3 @@ class Contact(models.Model):
     def __str__(self):
         return f"{self.user_from} подписался на {self.user_to}"
 
-    def user_follow(self):
-        return

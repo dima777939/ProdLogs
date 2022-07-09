@@ -3,9 +3,9 @@
     Операторы
 {% endblock %}
 {% block content %}
-    <div class="block block_card">
+    <div class=" block_card">
         {% for user in users %}
-			<div class="block carder block_user">
+			<div class="block_action carder block_user">
                <a href="{{ user.get_absolute_url }}">{{ user.get_full_name }}.</a>
 				<div>Табельный номер {{ user.t_number }}</div>
 				<div>Первый вход  {{ user.date_joined }}</div>

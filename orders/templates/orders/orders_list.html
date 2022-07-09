@@ -54,7 +54,7 @@
                 <div {% if order.id in shelf.get_id %} class="container-fluid overflow-hidden text-center text-success" {% else %} class="container-fluid overflow-hidden text-center" {% endif %}>
                   <div class="row no-gutters g-0">
                     <div class="col-sm">
-                     <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_detail' order.id order.slug %}"
+                     <div class="p-2 bg-light"><a target="_blank" href="{{ order.get_absolute_url }}"
                           onclick="window.open(this.href,this.target,'width=500,height=600,scrollbars=1');return false;">{{ order.batch_number }}</a></div>
                     </div>
                     <div class="col-sm">

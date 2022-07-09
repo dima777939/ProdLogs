@@ -1,0 +1,28 @@
+	{% with user=action.user type=action.type_target %}
+	<div class="block_action
+			{% if type == 'buhtovka' %} color_buhtovka
+			{% elif type == 'iteration' %} color_iteration
+			{% elif type == 'finish' %} color_finished
+			{% elif type == 'follow' %} color_follow
+			{% elif type == 'line_oper' %} color_line_operation
+			{% endif %}">
+			<time>{{ action.created }}</time>
+			<a class="text-dark" href="{{ user.get_absolute_url }}">
+				Оператор <i>{{ user.get_full_name }}</i>
+			</a>
+
+			{% if action.target%}
+				{% with action.target as target %}
+					<a class="dark" href="{% url 'orders:order_log' target.id %}">
+						{{ target }}
+					</a>
+				{% endwith %}
+			{% endif %}
+			<div>{{ action.verb }}</div>
+		</div>
+	{% endwith %}
+<script>
+	setTimeout(function(){
+	location.reload();
+}, 30000);
+</script>

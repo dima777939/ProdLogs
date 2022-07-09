@@ -7,16 +7,24 @@ from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
+from actions.models import Actions
 from .models import User, Contact
 from orders.models import OrderLog
 from .forms import LoginForm, RegistrationForm
-
+from actions.services import ActionUser
 
 
 class MainView(View):
 
     def get(self, request):
-        return render(request, 'manufactur/user/main.html')
+        actions = []
+        if request.user.is_active:
+            actions = Actions.objects.exclude(user=request.user)
+            following_ids = request.user.following.values_list('id', flat=True)
+            if following_ids:
+                actions = actions.filter(user_id__in=following_ids)
+            actions = actions[:15]
+        return render(request, 'manufactur/user/main.html', {'actions': actions})
 
 
 class UserRegisterView(View):
@@ -89,6 +97,10 @@ class UserFollowView(View):
                     user = User.objects.get(id=user_id)
                     if action == 'follow':
                         Contact.objects.get_or_create(user_from=request.user, user_to=user)
+                        ActionUser(request.user,
+                                   f'Подписался на {user.first_name} {user.last_name}',
+                                   'follow',
+                                   user).create_actions()
                     else:
                         Contact.objects.filter(user_from=request.user, user_to=user).delete()
                     return JsonResponse({'status': 'ok'})

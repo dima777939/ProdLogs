@@ -9,6 +9,11 @@ body {
     padding: 0;
 }
 
+i {
+    color: #993333;
+    font-size: larger;
+}
+
 .content {
     display: flex;
     flex-direction: column;
@@ -17,9 +22,47 @@ body {
     font-size: 14px;
 }
 
-.block {
-    display: block;
+a.dark {
+   color: #700ddc;
+    text-decoration: none;
+}
+
+a.dark:hover {
+    color: #f19443;
+    text-decoration: none;
+}
+
+.color_follow{
+    background-color: rgba(227, 209, 34, 0.42);
+}
+
+.color_iteration{
+    background-color: rgba(56, 117, 215, 0.54);
+}
+
+.color_buhtovka{
+    background-color: rgba(108, 68, 183, 0.43);
+}
+
+.color_finished{
+    background-color: rgba(20, 108, 67, 0.59);
+}
+
+.color_line_operation{
+    background-color: rgba(65, 118, 144, 0.56);
+}
+
+.block_action {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 20px;
+    padding:7px;
+    border: 1px solid;
+    border-color: #c5c207;
     border-radius: 5px;
+    box-shadow: 6px 4px 4px #c4c11c;
 }
 
 .block_form{
@@ -30,8 +73,10 @@ body {
 
 .block_user{
     display: flex;
+    flex-direction: row;
     background-color: aliceblue;
-    justify-content: space-between;
+    justify-content: space-around;
+    align-items: center;
     max-width: 900px;
 }
 
@@ -43,12 +88,19 @@ body {
 }
 
 .carder {
-    margin: 20px;
-    padding: 15px;
-    /*max-width: 600px;*/
-    /*min-width: 550px;*/
     background-color: rgba(201, 152, 97, 0.25);
 }
+
+.count {
+    display: flex;
+    flex-direction: row;
+    padding-left: 3px;
+    padding-top: 15px;
+}
+
+/*.count p {*/
+/*    display: block;*/
+/*}*/
 
 .create_form {
     display: flex;
@@ -137,8 +189,7 @@ td select, td input {
     width: 120px;
     border: 1px solid;
     border-radius: 5px;
-    color: white;
-    /*padding: 1px;*/
+    color: #79aec8;
     text-align: center;
     font-size: 12px;
     cursor: pointer;
@@ -146,4 +197,9 @@ td select, td input {
 
 .link_button:hover {
     color: rgb(31, 27, 26);
+}
+
+.link_button_follow {
+    color: #c5c207;
+    padding-top: 7px;
 }

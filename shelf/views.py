@@ -4,6 +4,9 @@ from django.views import View
 from orders.models import Order, ProductionOrders
 from .shelf import Shelf
 from .forms import ShelfAddOrderForm, ShelfAddCommentForm
+from actions.services import ActionUser
+
+action = ActionUser
 
 
 class ShelfAddView(View):
@@ -60,4 +63,5 @@ class ShelfGetView(View):
             ProductionOrders.objects.create(order=item['order'], comment=item['comment'])
             Order.objects.filter(id=item['order'].id).update(in_production=True)
         shelf.clear()
+        action(request.user, f"Добавил заказы в производство {len(shelf)} шт.")
         return redirect(reverse('shelf:shelf_detail'))

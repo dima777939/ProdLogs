@@ -5,6 +5,7 @@ from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
 from shelf.forms import ShelfAddOrderForm
 from .order_direction import OrderDirection as OD
+from actions.services import ActionUser
 
 
 class OrderListView(View):
@@ -65,21 +66,40 @@ class ProductionOrderView(View):
             # Сколько в заказе сделано катушек
             if operation_slug in self.ITERATION_OPERATIONS:
                 if OD.allow_next_operation(order_in_prod):
+                    ActionUser(request.user,
+                               f'Операция: {order_prod.operation}. '
+                               f'Сделал катушку №{order_log.number_container}.  Длинна - {order_log.total_in_meters} м. '
+                               f'Катушка {order_in_prod.count_tara} из {order_prod.cores}.',
+                               'iteration',
+                               order_prod).create_actions()
                     return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
             # Бухтова
             elif operation_slug in self.BUHTOVKA and (order_prod.footage - (order_log.total_in_meters *
                                                         order_log.number_container + order_in_prod.count_tara)) > 20:
                 OD.buhtovka(order_prod, order_log, order_in_prod)
+                ActionUser(request.user,
+                           f'Операция {order_prod.operation}. '
+                           f'Сделал {order_log.number_container} бухт по {order_log.total_in_meters} м.',
+                           'buhtovka', order_prod).create_actions()
                 return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
             # Деление заказа по метражу на барабанах
             elif operation_slug in self.LINE_OPERATIONS and (order_prod.footage - (order_log.total_in_meters +
                                                                                    order_in_prod.count_tara)) > 100:
                 OD.division_order(order_prod, order_log, order_in_prod)
+                ActionUser(request.user,
+                           f'Операция {order_prod.operation}.'
+                           f'На барабан №{order_log.number_container} намотано {order_log.total_in_meters} м.'
+                           f'Остаток по длине заказа {order_prod.footage - order_in_prod.count_tara} м.',
+                           'line_oper',
+                           order_prod).create_actions()
                 return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
             OD.next_operation(OD, order_prod, operation_slug)
+            ActionUser(request.user,
+                       f'Заказ {order_prod.batch_number} на операции {order_prod.operation} готов',
+                       'finish',
+                       order_prod).create_actions()
             return redirect(reverse('orders:order_p_list', args=[order_prod.operation.slug]))
         operation = get_object_or_404(Operation, slug=operation_slug)
-        order_in_prod = get_object_or_404(Order, id=request.POST['order'])
         return render(request, 'orders/order_production_in_operation.html', {'order_in_prod_form': order_log_form,
                                                                               'operation': operation,
                                                                              })
