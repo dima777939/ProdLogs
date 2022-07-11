@@ -10,26 +10,26 @@ action = ActionUser
 
 
 class ShelfAddView(View):
-
     def post(self, request, order_id):
         shelf = Shelf(request)
         order = get_object_or_404(Order, id=order_id)
         form = ShelfAddOrderForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            shelf.add(order=order, time=cd['time'], update_time=cd['update'])
-            if cd['update']:
-                return redirect('shelf:shelf_detail')
-        return redirect(reverse('orders:order_list_by_category', args=[order.operation.slug]))
+            shelf.add(order=order, time=cd["time"], update_time=cd["update"])
+            if cd["update"]:
+                return redirect("shelf:shelf_detail")
+        return redirect(
+            reverse("orders:order_list_by_category", args=[order.operation.slug])
+        )
 
 
 class ShelfRemoveView(View):
-
     def get(self, request, order_id):
         shelf = Shelf(request)
         order = get_object_or_404(Order, id=order_id)
         shelf.remove(order)
-        return redirect(reverse('shelf:shelf_detail'))
+        return redirect(reverse("shelf:shelf_detail"))
 
     def post(self, request, order_id):
         shelf = Shelf(request)
@@ -37,31 +37,31 @@ class ShelfRemoveView(View):
         order = get_object_or_404(Order, id=order_id)
         if form.is_valid():
             cd = form.cleaned_data
-            shelf.add_comment(order=order, comment=cd['comment'])
-            return redirect('shelf:shelf_detail')
+            shelf.add_comment(order=order, comment=cd["comment"])
+            return redirect("shelf:shelf_detail")
 
 
 class ShelfDetailView(View):
-
     def get(self, request):
         shelf = Shelf(request)
         for item in shelf:
-            item['update_time_form'] = ShelfAddOrderForm(
-                initial={'time': item['time'], 'update': True}
+            item["update_time_form"] = ShelfAddOrderForm(
+                initial={"time": item["time"], "update": True}
             )
-            item['comment_form'] = ShelfAddCommentForm(
-                initial={'comment': item['comment']}
+            item["comment_form"] = ShelfAddCommentForm(
+                initial={"comment": item["comment"]}
             )
-        return render(request, 'shelf/shelf_detail.html', {'shelf': shelf})
+        return render(request, "shelf/shelf_detail.html", {"shelf": shelf})
 
 
 class ShelfGetView(View):
-
     def get(self, request):
         shelf = Shelf(request)
         for item in shelf:
-            ProductionOrders.objects.create(order=item['order'], comment=item['comment'])
-            Order.objects.filter(id=item['order'].id).update(in_production=True)
+            ProductionOrders.objects.create(
+                order=item["order"], comment=item["comment"]
+            )
+            Order.objects.filter(id=item["order"].id).update(in_production=True)
         shelf.clear()
         action(request.user, f"Добавил заказы в производство {len(shelf)} шт.")
-        return redirect(reverse('shelf:shelf_detail'))
+        return redirect(reverse("shelf:shelf_detail"))

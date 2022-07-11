@@ -20,14 +20,12 @@ from django.conf import settings
 from manufactur.views import MainView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('shelf/', include('shelf.urls', namespace='shelf')),
-    path('manufactur/', include('manufactur.urls', namespace='manufactur')),
-    path('orders/', include('orders.urls', namespace='orders')),
-    path('', MainView.as_view()),
-
+    path("admin/", admin.site.urls),
+    path("shelf/", include("shelf.urls", namespace="shelf")),
+    path("manufactur/", include("manufactur.urls", namespace="manufactur")),
+    path("orders/", include("orders.urls", namespace="orders")),
+    path("", MainView.as_view()),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

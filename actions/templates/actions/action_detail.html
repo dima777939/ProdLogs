@@ -13,7 +13,7 @@
 
 			{% if action.target%}
 				{% with action.target as target %}
-					<a class="dark" href="{% url 'orders:order_log' target.id %}">
+					<a class="dark" {% if type == 'follow' %} href="{{ target.get_absolute_url }}" {% else %} href="{% url 'orders:order_log' target.id %}" {% endif %}>
 						{{ target }}
 					</a>
 				{% endwith %}

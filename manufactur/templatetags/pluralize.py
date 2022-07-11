@@ -3,8 +3,9 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
-def rupluralize(value, args=('заказ', 'заказа', 'заказов')):
+def rupluralize(value, args=("заказ", "заказа", "заказов")):
     number = abs(int(value))
     a = number % 10
     b = number % 100
