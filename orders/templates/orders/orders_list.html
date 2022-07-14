@@ -47,11 +47,12 @@
 </div>
 
 {% for order in orders %}
+{% with order_id=order.id  shelf_get_id=shelf.get_id %}
 <div class="container-fluid ">
     <div class="row  g-2 " >
         <div class="col">
             <div class="p-1 border bg-light">
-                <div {% if order.id in shelf.get_id %} class="container-fluid overflow-hidden text-center text-success" {% else %} class="container-fluid overflow-hidden text-center" {% endif %}>
+                <div data_id="{{ order_id }}"{% if order_id in shelf_get_id %} class="container-fluid overflow-hidden text-center text-success" {% else %} class="container-fluid overflow-hidden text-center" {% endif %}>
                   <div class="row no-gutters g-0">
                     <div class="col-sm">
                      <div class="p-2 bg-light"><a target="_blank" href="{{ order.get_absolute_url }}"
@@ -61,7 +62,7 @@
                       <div class="p-2 bg-light">{{ order.operation }}</div>
                     </div>
                     <div class="col-sm">
-                     <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order.id %}"
+                     <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order_id %}"
                          onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
                          {{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</a></div>
                     </div>
@@ -73,12 +74,12 @@
                     </div>
                     <div class="col-inline col-sm">
                      <div class="p-2  bg-light">
-                         <form action="{% url 'shelf:shelf_add' order.id %}" method="post">
-                             {{ shelf_order_form.time }}
-                             {{ shelf_order_form.update }}
-                             {% csrf_token %}
-                         <input type="submit" value="В работу">
-                         </form>
+                         <input class="shelf"
+                          		type="button"
+								data_id="{{ order_id }}"
+						   		data-id="{{ order_id }}"
+								data-action="{% if order_id in shelf_get_id %}un{% endif %}add"
+								value="{% if order_id in shelf_get_id %}Удалить{% else %}В работу{% endif %}">
                      </div>
                     </div>
                   </div>
@@ -87,5 +88,43 @@
         </div>
     </div>
 </div>
+{% endwith %}
 {% endfor %}
+{% endblock %}
+{% block domready %}
+	// order lost
+	$('div.p-2 input[type="button"]').click(function (e) {
+				e.preventDefault();
+            	$.post('{% url "shelf:shelf_add" %}',
+                	{
+                    	id: $(this).data('id'),
+                    	action: $(this).data('action')
+					},
+					function (data) {
+						if (data['status'] === 'ok') {
+							let order_id = data['order'];
+                            let input_order = $(`input[data_id=${order_id}]`);
+
+                            // container order color text
+                            let previous_action = input_order.data('action');
+							$(`div[data_id=${order_id}]`).addClass(
+                                previous_action === 'add' ? 'text-success' : "text-warning").removeClass(
+                                previous_action === 'add' ? 'text-warning' : 'text-success');
+
+							//toggle data-action
+							input_order.data('action',
+							previous_action === 'add' ? 'unadd' : 'add');
+
+                            // toggle button value
+                            input_order.val(
+                            previous_action === 'add' ? 'Удалить' : 'В работу');
+
+                            // update total order in shelf
+                            let count_orders_shelf = $('div i')
+                            let previous_orders = parseInt(count_orders_shelf.text());
+                            count_orders_shelf.text(previous_action === 'add' ? previous_orders + 1 : previous_orders - 1)
+						}
+					}
+				);
+			});
 {% endblock %}
