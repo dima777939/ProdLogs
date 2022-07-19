@@ -1,27 +1,36 @@
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+
+
 from orders.models import Order, ProductionOrders
 from .shelf import Shelf
 from .forms import ShelfAddOrderForm, ShelfAddCommentForm
 from actions.services import ActionUser
 
-action = ActionUser
 
-
+@method_decorator(login_required, name="dispatch")
 class ShelfAddView(View):
-    def post(self, request, order_id):
-        shelf = Shelf(request)
-        order = get_object_or_404(Order, id=order_id)
-        form = ShelfAddOrderForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            shelf.add(order=order, time=cd["time"], update_time=cd["update"])
-            if cd["update"]:
-                return redirect("shelf:shelf_detail")
-        return redirect(
-            reverse("orders:order_list_by_category", args=[order.operation.slug])
-        )
+    def post(self, request):
+        if request.is_ajax():
+            order_id = request.POST.get("id")
+            action = request.POST.get("action")
+            if order_id and action:
+                try:
+                    shelf = Shelf(request)
+                    order = get_object_or_404(Order, id=order_id)
+                    if action == "add":
+                        shelf.add(order)
+                    else:
+                        shelf.remove(order)
+                    return JsonResponse({"status": "ok", "order": order_id})
+                except Order.DoesNotExist:
+                    return JsonResponse({"status": "except"})
+            return HttpResponse("Такого заказа не существует")
+        return HttpResponse("Можно добавлять только кнопкой 'В работу'")
 
 
 class ShelfRemoveView(View):
@@ -63,5 +72,7 @@ class ShelfGetView(View):
             )
             Order.objects.filter(id=item["order"].id).update(in_production=True)
         shelf.clear()
-        action(request.user, f"Добавил заказы в производство {len(shelf)} шт.")
+        ActionUser(
+            request.user, f"Добавил заказы в производство: {len(shelf)} шт.", "follow"
+        ).create_actions()
         return redirect(reverse("shelf:shelf_detail"))

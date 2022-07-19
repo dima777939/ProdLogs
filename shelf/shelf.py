@@ -22,17 +22,12 @@ class Shelf:
     def __len__(self):
         return len(self.shelf)
 
-    def add(
-        self,
-        order,
-        time=60,
-        update_time=False,
-    ):
+    def add(self, order):
         order_id = str(order.id)
         if order_id not in self.shelf:
             self.shelf[order_id] = {
                 "batch_number": str(order.batch_number),
-                "time": 0,
+                "time": 45 * order.cores,
                 "operation": str(order.operation),
                 "cable": str(
                     f"{ order.plastic } { order.design } { order.purpose } { order.cores }"
@@ -41,10 +36,6 @@ class Shelf:
                 "footage": str(order.footage),
                 "comment": "",
             }
-        if update_time:
-            self.shelf[order_id]["time"] = time
-        else:
-            self.shelf[order_id]["time"] += time
         self.save()
 
     def add_comment(self, order, comment):

@@ -48,18 +48,10 @@
 </div>
       </li>
       <li class="nav-item">
-        <div {% if request.user.is_staff %}class="nav-link text-dark" {% else %}class="nav-link disabled"  tabindex="-1" aria-disabled="true"{% endif %} >
-            {% with total_items=shelf|length %}
-                {% if shelf|length > 0 %}
-                    Стеллаж:
+        <div {% if request.user.is_staff %}class="count_shelf nav-link text-dark" {% else %}class="nav-link disabled"  tabindex="-1" aria-disabled="true"{% endif %} >
                     <a class="text-dark" data-id="shelf" href="{% url 'shelf:shelf_detail' %}">
-                        {{ total_items }} {{ total_items|rupluralize }}
-                        на {{ shelf.get_total_time }}
+                    <div class="">Стеллаж: <i>{{ shelf|length }}</i> шт.</div>
                     </a>
-                {% else %}
-                    Стеллаж пустой
-                {% endif %}
-            {% endwith %}
         </div>
       </li>
     </ul>
@@ -111,7 +103,6 @@
   		<script>
 		  $(document).ready(function () {
 			  {% block domready %}{% endblock %}
-
           });
 	  </script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

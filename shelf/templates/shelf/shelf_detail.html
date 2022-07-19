@@ -22,7 +22,7 @@
       <td>{{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</td>
       <td>{{ order.footage }}</td>
       <td>
-          <form action="{% url 'shelf:shelf_add' order.id %}" method="post">
+          <form action="{% url 'shelf:shelf_add' %}" method="post">
               {{ item.update_time_form.time }}
               {{ item.update_time_form.update }}
               <input type="submit" value="Изменить">
@@ -48,7 +48,7 @@
   </tbody>
  </table>
 <p class="text-right">
-    <button type="button" class="btn btn-dark" >
+    <button type="button" class="btn btn-dark shelf" >
         <a href="{% url 'orders:order_list' %}" class="button-light text-light">Заказы</a>
     </button>
 
@@ -82,6 +82,4 @@
     </div>
   </div>
 </div>
-
-
 {% endblock %}

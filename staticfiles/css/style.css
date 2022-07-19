@@ -98,9 +98,12 @@ a.dark:hover {
     padding-top: 15px;
 }
 
-/*.count p {*/
-/*    display: block;*/
-/*}*/
+.count_shelf {
+    display: flex;
+    flex-direction: row;
+    padding-left: 3px;
+    padding-top: 15px;
+}
 
 .create_form {
     display: flex;
