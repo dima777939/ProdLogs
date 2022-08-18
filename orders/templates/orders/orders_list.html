@@ -15,11 +15,11 @@
           </li>
       {% endfor %}
   </ul><br>
-<div class="container-sm">
+<div class="container">
     <div class="row g-2 " >
         <div class="col">
             <div class="p-4 border bg-light">
-                <div class="container-sm overflow-hidden text-center font-weight-bold">
+                <div class="container overflow-hidden text-center font-weight-bold">
                   <div class="row g-0">
                      <div class="col border-right-0">
                      <div class="w-100 p-2 border-right-0">Номер партии</div>
@@ -48,31 +48,31 @@
 
 {% for order in orders %}
 {% with order_id=order.id  shelf_get_id=shelf.get_id %}
-<div class="container-fluid ">
+<div class="container">
     <div class="row  g-2 " >
         <div class="col">
             <div class="p-1 border bg-light">
                 <div data_id="{{ order_id }}"{% if order_id in shelf_get_id %} class="container-fluid overflow-hidden text-center text-success" {% else %} class="container-fluid overflow-hidden text-center" {% endif %}>
                   <div class="row no-gutters g-0">
-                    <div class="col-sm">
+                    <div class="col">
                      <div class="p-2 bg-light"><a target="_blank" href="{{ order.get_absolute_url }}"
                           onclick="window.open(this.href,this.target,'width=500,height=600,scrollbars=1');return false;">{{ order.batch_number }}</a></div>
                     </div>
-                    <div class="col-sm">
+                    <div class="col">
                       <div class="p-2 bg-light">{{ order.operation }}</div>
                     </div>
-                    <div class="col-sm">
+                    <div class="col">
                      <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order_id %}"
                          onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
                          {{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</a></div>
                     </div>
-                    <div class="col-sm">
+                    <div class="col">
                      <div class="p-2 bg-light">{{ order.footage }}</div>
                     </div>
-                    <div class="col-sm">
+                    <div class="col">
                      <div class="p-2  bg-light">{{ order.completion }}</div>
                     </div>
-                    <div class="col-inline col-sm">
+                    <div class="col-inline col">
                      <div class="p-2  bg-light">
                          <input class="shelf"
                           		type="button"

@@ -21,33 +21,33 @@
 	</div>
 	<h2>Заказы</h2>
 	{% for order in orders %}
-		<div class="container-fluid ">
+		<div class="container ">
 			<div class="row  g-2 " >
 				<div class="col">
 					<div class="p-1 border bg-light">
-						<div class="container-fluid overflow-hidden text-center" >
+						<div class="container overflow-hidden text-center" >
 						  <div class="row no-gutters g-0">
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2 bg-light">{{ order.order.batch_number }}</div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							  <div class="p-2 bg-light">{{ order.operation }}</div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order.order.id %}"
 								 onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
 								 {{ order.order }}</a></div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2 bg-light">{{ order.number_container }}</div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2  bg-light">{{ order.date_finished }}</div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2 bg-light">{{ order.total_in_meters }}</div>
 							</div>
-							<div class="col-sm">
+							<div class="col">
 							 <div class="p-2 bg-light">{{ order.date_finished }}</div>
 							</div>
 						  </div>
