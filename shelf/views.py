@@ -33,6 +33,19 @@ class ShelfAddView(View):
         return HttpResponse("Можно добавлять только кнопкой 'В работу'")
 
 
+class ShelfAddTimeOrderView(View):
+    def post(self, request, order_id):
+        shelf = Shelf(request)
+        order = get_object_or_404(Order, id=order_id)
+        form = ShelfAddOrderForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            shelf.update_time(order=order, time=cd["time"], update_time=cd["update"])
+            if cd["update"]:
+                return redirect("shelf:shelf_detail")
+        return redirect("orders:order_list")
+
+
 class ShelfRemoveView(View):
     def get(self, request, order_id):
         shelf = Shelf(request)
@@ -73,6 +86,8 @@ class ShelfGetView(View):
             Order.objects.filter(id=item["order"].id).update(in_production=True)
         shelf.clear()
         ActionUser(
-            request.user, f"Добавил заказы в производство: {len(shelf)} шт.", "follow"
+            request.user,
+            f"Добавил заказы в производство: {len(shelf)} шт.",
+            type_target="follow",
         ).create_actions()
         return redirect(reverse("shelf:shelf_detail"))
