@@ -22,7 +22,7 @@
       <td>{{ order.plastic }} {{ order.design }} {{ order.purpose }} {{ order.cores }}x{{ order.crosssection }}</td>
       <td>{{ order.footage }}</td>
       <td>
-          <form action="{% url 'shelf:shelf_add' %}" method="post">
+          <form action="{% url 'shelf:shelf_add_time_order' order.id %}" method="post">
               {{ item.update_time_form.time }}
               {{ item.update_time_form.update }}
               <input type="submit" value="Изменить">

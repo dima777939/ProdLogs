@@ -27,7 +27,7 @@ class Shelf:
         if order_id not in self.shelf:
             self.shelf[order_id] = {
                 "batch_number": str(order.batch_number),
-                "time": 45 * order.cores,
+                "time": self.get_time(order),
                 "operation": str(order.operation),
                 "cable": str(
                     f"{ order.plastic } { order.design } { order.purpose } { order.cores }"
@@ -36,6 +36,18 @@ class Shelf:
                 "footage": str(order.footage),
                 "comment": "",
             }
+        self.save()
+
+    def get_time(self, order):
+        new_time = 45 * order.cores * ((order.footage // 1000) * 0.1)
+        clear_time = new_time % 15
+        new_time = new_time - clear_time
+        return int(new_time)
+
+    def update_time(self, order, time, update_time):
+        order_id = str(order.id)
+        if update_time:
+            self.shelf[order_id]["time"] = time
         self.save()
 
     def add_comment(self, order, comment):
