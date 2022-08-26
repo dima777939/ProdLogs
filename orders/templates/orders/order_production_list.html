@@ -3,6 +3,7 @@
 {% block content %}
     <br>
     <h3>Операции</h3>
+	<h4>Заказы на {{ operation.name }}</h4>
   <ul class="nav nav-tabs">
       {% for o in operations %}
           <li class="nav-item">
@@ -10,29 +11,34 @@
           </li>
       {% endfor %}
   </ul><br>
-{#	<div class="container-xxl">#}
-    <table class="table table-striped align-middle table-responsive-md table-hover shelf">
+ <table class="table table-striped align-middle table-responsive-md table-hover text-center shelf">
   <thead>
     <tr>
+	  <th scope="col">Номер партии</th>
       <th scope="col">Кабель</th>
       <th scope="col">Операция</th>
       <th scope="col">Метраж</th>
       <th>Выбор</th>
       {% if operation.slug in ITERATION_OPERATIONS %}
-      <th>Сделано катушек</th>
+      <th scope="col">Сделано катушек</th>
       {% else %}
-      <th>Сделано метров</th>
+      <th scope="col">Сделано метров</th>
       {% endif %}
-      <th>Комментарий</th>
+      <th scope="col">Комментарий</th>
     </tr>
   </thead>
   <tbody>
   {% for order in orders_in_prod %}
     <tr>
-      <th scope="row">{{ order.order }}</th>
+      <th scope="row">{{ order.order.batch_number }}</th>
+	  <td>{{ order.order.plastic }} {{ order.order.design }} {{ order.order.purpose }} {{ order.order.cores }}x{{ order.order.crosssection }}</td>
       <td>{{ operation }}</td>
       <td>{{ order.order.footage }}</td>
-      <td ><a class="link_button" href="{% url 'orders:order_p_id' operation.slug  order.id%}">Заказы в производство</a></td>
+	  {% if operation.slug == 'gruboe-volochenie' %}
+	  <td ><a class="link_button" href="{% url 'orders:order_p_id' operation.slug order.id 0 0 %}">Заказ в производство</a></td>
+	  {% else %}
+      <td ><a class="link_button" href="{% url 'orders:order_prod_detail' operation.slug  order.id%}">Заказ в производство</a></td>
+	  {% endif %}
       <td>Сделано{% if order.count_tara %} {{ order.count_tara }}  {% else %} 0 {% endif %} из
           {% if operation.slug in ITERATION_OPERATIONS %}
             {{ order.order.cores }}
@@ -45,5 +51,4 @@
     {% endfor %}
   </tbody>
  </table>
-{#	</div>#}
 {% endblock %}

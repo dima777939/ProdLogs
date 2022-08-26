@@ -45,17 +45,20 @@ class ProductionOrderView(View):
         "liniya-90",
     ]
 
-    def get(self, request, operation_slug, id_open_form=None):
+    def get(self, request, operation_slug, id_open_form=None, num_container=None, id_order_log=None):
         operator = request.user
         operation = get_object_or_404(Operation, slug=operation_slug)
         if id_open_form:
             order_in_prod = get_object_or_404(
                 ProductionOrders, id=id_open_form, finished=False
             )
+            order = get_object_or_404(Order, id=order_in_prod.order.id)
             data = {
-                "order": order_in_prod.order,
+                "order": order,
                 "operation": operation,
                 "operator": operator,
+                "prev_number_container": num_container,
+                "id_order_log": id_order_log
             }
             order_in_prod_form = OrderLogForm(initial=data)
             return render(
@@ -90,14 +93,16 @@ class ProductionOrderView(View):
         # Валидация формы
         if order_log_form.is_valid():
             # Сохранение данных в таблицу из формы
-            order_log = order_log_form.save()
+            order_log = order_log_form.save(commit=False)
             order_prod = get_object_or_404(Order, id=order_log.order.id)
             order_in_prod = get_object_or_404(
                 ProductionOrders, order=order_prod, finished=False
             )
+            order_log = order_log_form.save()
             # Сколько в заказе сделано катушек
             if operation_slug in self.ITERATION_OPERATIONS:
                 if OD.allow_next_operation(order_in_prod):
+                    OD.check_container(order_log_form)
                     ActionUser(
                         request.user,
                         f"Операция: {order_prod.operation}. "
@@ -111,15 +116,15 @@ class ProductionOrderView(View):
                     )
             # Бухтова
             elif (
-                operation_slug in self.BUHTOVKA
-                and (
-                    order_prod.footage
-                    - (
-                        order_log.total_in_meters * order_log.number_container
-                        + order_in_prod.count_tara
+                    operation_slug in self.BUHTOVKA
+                    and (
+                            order_prod.footage
+                            - (
+                                    order_log.total_in_meters * order_log.number_container
+                                    + order_in_prod.count_tara
+                            )
                     )
-                )
-                > 20
+                    > 20
             ):
                 OD.buhtovka(order_prod, order_log, order_in_prod)
                 ActionUser(
@@ -134,12 +139,12 @@ class ProductionOrderView(View):
                 )
             # Деление заказа по метражу на барабанах
             elif (
-                operation_slug in self.LINE_OPERATIONS
-                and (
-                    order_prod.footage
-                    - (order_log.total_in_meters + order_in_prod.count_tara)
-                )
-                > 100
+                    operation_slug in self.LINE_OPERATIONS
+                    and (
+                            order_prod.footage
+                            - (order_log.total_in_meters + order_in_prod.count_tara)
+                    )
+                    > 100
             ):
                 OD.division_order(order_prod, order_log, order_in_prod)
                 ActionUser(
@@ -172,6 +177,40 @@ class ProductionOrderView(View):
                 "operation": operation,
             },
         )
+
+
+class ProdOrderDetailView(View):
+    ITERATION_OPERATIONS = [
+        "gruboe-volochenie",
+        "liniya-70",
+        "lentoobmotka",
+    ]
+    BUHTOVKA = [
+        "buhtovka",
+    ]
+    LINE_OPERATIONS = [
+        "bolshaya-skrutka",
+        "liniya-90",
+    ]
+
+    def get(self, request, order_id, operation):
+        operation_obj = get_object_or_404(Operation, slug=operation)
+        prev_operation_slug = OD.get_previous_operation(OD, operation=operation_obj,
+                                                        order_id=order_id)
+        operation_prev = get_object_or_404(Operation, slug=prev_operation_slug)
+        order_prod = get_object_or_404(ProductionOrders, id=order_id)
+        order_log_detail = OrderLog.objects.filter(order=order_prod.order,
+                                                   operation=operation_prev).order_by("number_container", "total_in_meters")
+        if operation in self.LINE_OPERATIONS or operation in self.BUHTOVKA:
+            order_log_detail = order_log_detail.values()
+            order_log_detail = OD.get_query_order_log(order_log_detail)
+        return render(request, "orders/order_prod_detail.html", {"order_log_detail": order_log_detail,
+                                                                 "operation": operation_obj,
+                                                                 "order_prod_id": order_id,
+                                                                 "order_prod": order_prod,
+                                                                 "ITERATION_OPERATIONS": self.ITERATION_OPERATIONS,
+                                                                 "LINE_OPERATIONS": self.LINE_OPERATIONS,
+                                                                 "BUHTOVKA": self.BUHTOVKA,})
 
 
 class OrderDetailView(View):
