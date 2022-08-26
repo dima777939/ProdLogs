@@ -90,11 +90,12 @@ class ProductionOrderView(View):
         # Валидация формы
         if order_log_form.is_valid():
             # Сохранение данных в таблицу из формы
-            order_log = order_log_form.save()
+            order_log = order_log_form.save(commit=False)
             order_prod = get_object_or_404(Order, id=order_log.order.id)
             order_in_prod = get_object_or_404(
                 ProductionOrders, order=order_prod, finished=False
             )
+            order_log = order_log_form.save()
             # Сколько в заказе сделано катушек
             if operation_slug in self.ITERATION_OPERATIONS:
                 if OD.allow_next_operation(order_in_prod):
