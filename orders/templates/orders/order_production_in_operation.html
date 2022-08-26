@@ -5,8 +5,6 @@
 	<section class="form_prod">
 	<div class="container-sm">
 		<div class="row border-1 justify-content-center  card-body">
-{#			<div class="col-md-6 col-xl-4">#}
-
 				<h2>Операция {{ operation }}</h2>
 				<form action="{% url 'orders:order_p_list' operation.slug  %}" method="post">
 					{% csrf_token %}
@@ -14,14 +12,16 @@
 					{% bootstrap_field order_in_prod_form.operation %}
 					{% bootstrap_field order_in_prod_form.operator %}
 					{% bootstrap_field order_in_prod_form.color_cores %}
+					{% bootstrap_field order_in_prod_form.prev_number_container %}
 					{% bootstrap_field order_in_prod_form.container %}
 					{% bootstrap_field order_in_prod_form.number_container %}
 					{% bootstrap_field order_in_prod_form.total_in_meters %}
+					{% bootstrap_field order_in_prod_form.comment %}
+					{% bootstrap_field order_in_prod_form.iteration  %}
+					{% bootstrap_field order_in_prod_form.id_order_log %}
 					{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
 				</form>
 				</div>
 			</div>
-{#		</div>#}
-{#	</div>#}
 	</section>
 {% endblock %}

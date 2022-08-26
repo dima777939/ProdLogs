@@ -22,9 +22,12 @@ class OrderLogForm(ModelForm):
             "operation",
             "operator",
             "color_cores",
+            "prev_number_container",
             "container",
             "number_container",
             "total_in_meters",
+            "comment",
+            "iteration",
         ]
 
     def form_for_buhtovka(self):

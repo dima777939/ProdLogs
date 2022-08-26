@@ -5,13 +5,16 @@ app_name = "orders"
 
 urlpatterns = [
     path("", views.OrderListView.as_view(), name="order_list"),
+    path("production/detail/<slug:operation>/<int:order_id>/",
+         views.ProdOrderDetailView.as_view(),
+         name="order_prod_detail"),
     path(
         "production/<slug:operation_slug>/",
         views.ProductionOrderView.as_view(),
         name="order_p_list",
     ),
     path(
-        "production/<slug:operation_slug>/<int:id_open_form>/",
+        "production/<slug:operation_slug>/<int:id_open_form>/<int:num_container>/<str:id_order_log>",
         views.ProductionOrderView.as_view(),
         name="order_p_id",
     ),

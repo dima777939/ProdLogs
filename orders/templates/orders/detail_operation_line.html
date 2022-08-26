@@ -1,0 +1,35 @@
+<table class="table table-striped align-middle table-responsive-md table-hover shelf">
+		  <thead>
+			<tr>
+			  <th scope="col">Кабель</th>
+			  <th scope="col">Операция</th>
+			  <th scope="col">Катушка</th>
+			  <th scope="col">Метраж</th>
+			  <th scope="col">Комментарий</th>
+			</tr>
+		  </thead>
+<tbody>
+  {% for order_group in order_log_detail %}
+	  {% for num_container, detail_order in order_group.items %}
+		  {% for item_order in detail_order %}
+			<tr>
+			  <td>{{order_prod.order }}</td>
+			  <td>{{ order_prod.order.operation }}</td>
+			  <td>{{ item_order.number_container }}</td>
+			  <td>{{ item_order.total_in_meters }}</td>
+			  <td>{{ item_order.comment }}</td>
+			</tr>
+		  {% endfor %}
+	  {% endfor %}
+    {% endfor %}
+ <tr class="total">
+        <td>В добрый путь</td>
+        <td colspan="3"></td>
+        <td>
+			<button type="button" class="btn btn-secondary shelf" >
+				<a  href="{% url 'orders:order_p_id' operation  order_prod.id 0 0 %}" class="button-light text-light">Сделать</a>
+			</button>
+		</td>
+    </tr>
+	</tbody>
+</table>
