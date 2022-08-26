@@ -1,6 +1,7 @@
 from django.forms import ModelForm
+from django.shortcuts import get_object_or_404
 
-from .models import OrderLog
+from .models import OrderLog, Order, Operation
 from django import forms
 
 ITERATION_OPERATIONS = [
@@ -9,11 +10,22 @@ ITERATION_OPERATIONS = [
     "lentoobmotka",
 ]
 
+BUHTOVKA = [
+    "buhtovka",
+]
+
 
 class OrderLogForm(ModelForm):
-    def __init__(self, **data):
-        super(OrderLogForm, self).__init__(**data)
-        self.form_for_buhtovka() if len(data) else None
+    def __init__(self, *args, **data):
+        super(OrderLogForm, self).__init__(*args, **data)
+        if len(self.initial) and data:
+            self.fields["order"].queryset = Order.objects.filter(
+                id=data["initial"]["order"].id
+            )
+        self.fields["iteration"].widget = forms.HiddenInput()
+        self.form_for_buhtovka(data) if len(data) else None
+
+    id_order_log = forms.IntegerField(widget=forms.HiddenInput)
 
     class Meta:
         model = OrderLog
@@ -30,40 +42,72 @@ class OrderLogForm(ModelForm):
             "iteration",
         ]
 
-    def form_for_buhtovka(self):
-        if len(self.initial) and self.initial["operation"].slug == "buhtovka":
+    def form_for_buhtovka(self, data):
+        if len(self.initial):
+            operation = data["initial"]["operation"]
+        else:
+            operation_id = [val for field in data.values() for key, val in field.items() if key == "operation"]
+            operation = get_object_or_404(Operation, id=operation_id[0])
+        if operation.slug in BUHTOVKA:
             self.fields["color_cores"].initial = "б/ц"
             self.fields["container"].initial = "бух"
             self.fields["number_container"].label = "Кол-во бухт"
             self.fields["total_in_meters"].label = "Метраж бухты"
 
-    def clean_number_container(self):
-        cd = self.cleaned_data
-        if cd["number_container"] > 250:
-            raise forms.ValidationError("Проверь номер катушки")
-        return cd["number_container"]
-
     def clean_total_in_meters(self):
         cd = self.cleaned_data
         order = cd["order"]
         operation = cd["operation"]
-
-        order_log = OrderLog.objects.filter(
+        total_meters = cd["total_in_meters"]
+        order_log_meter = OrderLog.objects.filter(
             order=order, operation=operation
         ).values_list("total_in_meters", flat=True)
-        order_total_meter = sum(order_log) + cd["total_in_meters"]
+        order_total_meter = sum(order_log_meter) + cd["total_in_meters"]
         if operation.slug in ITERATION_OPERATIONS:
-            if int(order.footage) + 200 < cd["total_in_meters"]:
+            # Проверка на превышение длинны
+            if int(order.footage) + 200 < total_meters:
                 raise forms.ValidationError(
-                    f"Метраж указан больше чем в заказе. Длинна заказа {int(order.footage)} м."
+                    f"Метраж указан больше чем в заказе. Длинна заказа {order.footage} м."
                 )
-            elif int(order.footage) - 200 > cd["total_in_meters"]:
+            # Проверка, если длинна меньше требуемой
+            elif int(order.footage) - 200 > total_meters:
                 raise forms.ValidationError(
                     f"Указанная длинна меньше длинны заказа. Длинна заказа {order.footage} м."
                 )
-        else:
-            if int(order.footage) - order_total_meter < 0:
+        elif operation.slug in BUHTOVKA:
+            len_bight = cd["number_container"]
+            if total_meters > 200:
+                raise forms.ValidationError(f"Длинна бухты не должна превышать 200 м.")
+            elif int(order.footage) + 200 < total_meters * len_bight:
                 raise forms.ValidationError(
-                    f"Метраж указан больше чем в заказе. Длинна заказа {int(order.footage)} м."
+                    f"Превышение общей длинны заказа. Заказ {order.footage}м. Выход {len_bight * total_meters}м. Бухта {len_bight}м. Длинна бухт {total_meters}м."
+                )
+            elif (int(order.footage) + 200) - order_total_meter < 0:
+                raise forms.ValidationError(
+                    f"Метраж указан больше чем в заказе. Длинна заказа {order.footage} м. Остаток {order.footage - (sum(order_log_meter))}"
+                )
+        else:
+            # Проверка обшей длинны заказа при делении заказа на барабаны
+            if (int(order.footage) + 200) - order_total_meter < 0:
+                raise forms.ValidationError(
+                    f"Метраж указан больше чем в заказе. Длинна заказа {order.footage} м. Остаток {order.footage - (sum(order_log_meter))}"
                 )
         return cd["total_in_meters"]
+
+    def clean_number_container(self):
+        cd = self.cleaned_data
+        number_container = cd["number_container"]
+        order = cd["order"]
+        operation = cd["operation"]
+        # Проверка номера катушки
+        if number_container > 250 and operation.slug not in BUHTOVKA:
+            raise forms.ValidationError("Проверь номер катушки")
+        num_containers_in_operation = OrderLog.objects.filter(
+            order=order, operation=operation
+        ).values_list("number_container", flat=True)
+        # Проверка на дублирование номера катушки
+        if number_container in num_containers_in_operation:
+            raise forms.ValidationError(
+                f"Катушка №{number_container} уже присутствует в заказе"
+            )
+        return cd["number_container"]
