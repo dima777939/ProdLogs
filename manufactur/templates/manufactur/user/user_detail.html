@@ -34,15 +34,15 @@
 							  <div class="p-2 bg-light">{{ order.operation }}</div>
 							</div>
 							<div class="col">
-							 <div class="p-2 bg-light"><a target="_blank" href="{% url 'orders:order_log' order.order.id %}"
-								 onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
-								 {{ order.order }}</a></div>
+							 <div class="p-2 bg-light">
+								 <a target="_blank" href="{% url 'orders:order_log' order.order.id %}"
+								 	onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
+								 	{{ order.order.plastic }} {{ order.order.design }} {{ order.order.purpose }} {{ order.order.cores }}x{{ order.order.crosssection }}
+							 	 </a>
+							 </div>
 							</div>
 							<div class="col">
 							 <div class="p-2 bg-light">{{ order.number_container }}</div>
-							</div>
-							<div class="col">
-							 <div class="p-2  bg-light">{{ order.date_finished }}</div>
 							</div>
 							<div class="col">
 							 <div class="p-2 bg-light">{{ order.total_in_meters }}</div>
