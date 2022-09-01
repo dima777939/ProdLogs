@@ -79,7 +79,7 @@ class UserListView(View):
 class UserDetailView(View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username, is_active=True)
-        orders = OrderLog.objects.filter(operator=user).order_by("date_finished")
+        orders = OrderLog.objects.filter(operator=user).order_by("-date_finished", "operation", "order__batch_number")
         return render(
             request,
             "manufactur/user/user_detail.html",
