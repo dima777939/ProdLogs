@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
+from django.contrib import messages
+
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
 from shelf.forms import ShelfAddOrderForm
@@ -45,7 +47,14 @@ class ProductionOrderView(View):
         "liniya-90",
     ]
 
-    def get(self, request, operation_slug, id_open_form=None, num_container=None, id_order_log=None):
+    def get(
+        self,
+        request,
+        operation_slug,
+        id_open_form=None,
+        num_container=None,
+        id_order_log=None,
+    ):
         operator = request.user
         operation = get_object_or_404(Operation, slug=operation_slug)
         if id_open_form:
@@ -58,7 +67,7 @@ class ProductionOrderView(View):
                 "operation": operation,
                 "operator": operator,
                 "prev_number_container": num_container,
-                "id_order_log": id_order_log
+                "id_order_log": id_order_log,
             }
             order_in_prod_form = OrderLogForm(initial=data)
             return render(
@@ -103,72 +112,99 @@ class ProductionOrderView(View):
             if operation_slug in self.ITERATION_OPERATIONS:
                 if OD.allow_next_operation(order_in_prod):
                     OD.check_container(order_log_form)
-                    ActionUser(
-                        request.user,
+                    message = (
                         f"Операция: {order_prod.operation}. "
                         f"Сделал катушку №{order_log.number_container}.  Длинна - {order_log.total_in_meters} м. "
-                        f"Катушка {order_in_prod.count_tara} из {order_prod.cores}.",
+                        f"Катушка {order_in_prod.count_tara} из {order_prod.cores}."
+                    )
+                    ActionUser(
+                        request.user,
+                        message,
                         "iteration",
                         order_prod,
                     ).create_actions()
+                    messages.success(
+                        request,
+                        f"Отлично, {request.user.first_name}. Заказ № {order_prod.batch_number}.  {message}. ",
+                    )
                     return redirect(
                         reverse("orders:order_p_list", args=[order_prod.operation.slug])
                     )
             # Бухтова
             elif (
-                    operation_slug in self.BUHTOVKA
-                    and (
-                            order_prod.footage
-                            - (
-                                    order_log.total_in_meters * order_log.number_container
-                                    + order_in_prod.count_tara
-                            )
+                operation_slug in self.BUHTOVKA
+                and (
+                    order_prod.footage
+                    - (
+                        order_log.total_in_meters * order_log.number_container
+                        + order_in_prod.count_tara
                     )
-                    > 20
+                )
+                > 20
             ):
                 OD.buhtovka(order_prod, order_log, order_in_prod)
+                message = (
+                    f"Операция {order_prod.operation}. "
+                    f"Сделал {order_log.number_container} бухт по {order_log.total_in_meters} м."
+                )
                 ActionUser(
                     request.user,
-                    f"Операция {order_prod.operation}. "
-                    f"Сделал {order_log.number_container} бухт по {order_log.total_in_meters} м.",
+                    message,
                     "buhtovka",
                     order_prod,
                 ).create_actions()
+                messages.success(
+                    request,
+                    f"Отлично, {request.user.first_name}.   Заказ № {order_prod.batch_number}.  {message}",
+                )
                 return redirect(
                     reverse("orders:order_p_list", args=[order_prod.operation.slug])
                 )
             # Деление заказа по метражу на барабанах
             elif (
-                    operation_slug in self.LINE_OPERATIONS
-                    and (
-                            order_prod.footage
-                            - (order_log.total_in_meters + order_in_prod.count_tara)
-                    )
-                    > 100
+                operation_slug in self.LINE_OPERATIONS
+                and (
+                    order_prod.footage
+                    - (order_log.total_in_meters + order_in_prod.count_tara)
+                )
+                > 100
             ):
                 OD.division_order(order_prod, order_log, order_in_prod)
+                message = (
+                    f"Операция {order_prod.operation}. "
+                    f"На барабан №{order_log.number_container} намотано {order_log.total_in_meters} м. "
+                    f"Остаток по длине заказа {order_prod.footage - order_in_prod.count_tara} м."
+                )
                 ActionUser(
                     request.user,
-                    f"Операция {order_prod.operation}."
-                    f"На барабан №{order_log.number_container} намотано {order_log.total_in_meters} м."
-                    f"Остаток по длине заказа {order_prod.footage - order_in_prod.count_tara} м.",
+                    message,
                     "line_oper",
                     order_prod,
                 ).create_actions()
+                messages.success(
+                    request,
+                    f"Отлично, {request.user.first_name}.   Заказ № {order_prod.batch_number}.  {message}",
+                )
                 return redirect(
                     reverse("orders:order_p_list", args=[order_prod.operation.slug])
                 )
             OD.next_operation(OD, order_prod, operation_slug)
+            message = f"Заказ {order_prod.batch_number} на операции {order_prod.operation} готов."
             ActionUser(
                 request.user,
-                f"Заказ {order_prod.batch_number} на операции {order_prod.operation} готов",
+                message,
                 "finish",
                 order_prod,
             ).create_actions()
+            messages.success(request, f"Отлично, {request.user.first_name}. {message}")
             return redirect(
                 reverse("orders:order_p_list", args=[order_prod.operation.slug])
             )
         operation = get_object_or_404(Operation, slug=operation_slug)
+        messages.error(
+            request,
+            f"Опечатался, {request.user.first_name} ? Проверь всё ли правильно.",
+        )
         return render(
             request,
             "orders/order_production_in_operation.html",
@@ -195,22 +231,30 @@ class ProdOrderDetailView(View):
 
     def get(self, request, order_id, operation):
         operation_obj = get_object_or_404(Operation, slug=operation)
-        prev_operation_slug = OD.get_previous_operation(OD, operation=operation_obj,
-                                                        order_id=order_id)
+        prev_operation_slug = OD.get_previous_operation(
+            OD, operation=operation_obj, order_id=order_id
+        )
         operation_prev = get_object_or_404(Operation, slug=prev_operation_slug)
         order_prod = get_object_or_404(ProductionOrders, id=order_id)
-        order_log_detail = OrderLog.objects.filter(order=order_prod.order,
-                                                   operation=operation_prev).order_by("number_container", "total_in_meters")
+        order_log_detail = OrderLog.objects.filter(
+            order=order_prod.order, operation=operation_prev
+        ).order_by("number_container", "total_in_meters")
         if operation in self.LINE_OPERATIONS or operation in self.BUHTOVKA:
             order_log_detail = order_log_detail.values()
             order_log_detail = OD.get_query_order_log(order_log_detail)
-        return render(request, "orders/order_prod_detail.html", {"order_log_detail": order_log_detail,
-                                                                 "operation": operation_obj,
-                                                                 "order_prod_id": order_id,
-                                                                 "order_prod": order_prod,
-                                                                 "ITERATION_OPERATIONS": self.ITERATION_OPERATIONS,
-                                                                 "LINE_OPERATIONS": self.LINE_OPERATIONS,
-                                                                 "BUHTOVKA": self.BUHTOVKA,})
+        return render(
+            request,
+            "orders/order_prod_detail.html",
+            {
+                "order_log_detail": order_log_detail,
+                "operation": operation_obj,
+                "order_prod_id": order_id,
+                "order_prod": order_prod,
+                "ITERATION_OPERATIONS": self.ITERATION_OPERATIONS,
+                "LINE_OPERATIONS": self.LINE_OPERATIONS,
+                "BUHTOVKA": self.BUHTOVKA,
+            },
+        )
 
 
 class OrderDetailView(View):

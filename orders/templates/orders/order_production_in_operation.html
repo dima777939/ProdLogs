@@ -2,6 +2,15 @@
 {% load bootstrap4 %}
 {% block title %}{{ operation }}{% endblock %}
 {% block content %}
+	<div class="container p-2">
+	{% if messages %}
+		{% for message in messages %}
+		    <div class="alert alert-danger d-flex align-items-center justify-content-center alert-dismissible" role="alert">
+  			    {{ message|safe }}
+		    </div>
+	    {% endfor %}
+	{% endif %}
+	</div>
 	<section class="form_prod">
 	<div class="container-sm">
 		<div class="row border-1 justify-content-center  card-body">
