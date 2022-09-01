@@ -21,7 +21,7 @@ class MainView(View):
             following_ids = request.user.following.values_list("id", flat=True)
             if following_ids:
                 actions = actions.filter(user_id__in=following_ids)
-            actions = actions[:15]
+            actions = actions.select_related("user").prefetch_related("target_ct")[:15]
         return render(request, "manufactur/user/main.html", {"actions": actions})
 
 
