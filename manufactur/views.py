@@ -21,7 +21,7 @@ class MainView(View):
             following_ids = request.user.following.values_list("id", flat=True)
             if following_ids:
                 actions = actions.filter(user_id__in=following_ids)
-            actions = actions[:15]
+            actions = actions.select_related("user").prefetch_related("target_ct")[:15]
         return render(request, "manufactur/user/main.html", {"actions": actions})
 
 
@@ -79,7 +79,7 @@ class UserListView(View):
 class UserDetailView(View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username, is_active=True)
-        orders = OrderLog.objects.filter(operator=user).order_by("date_finished")
+        orders = OrderLog.objects.filter(operator=user).order_by("-date_finished", "operation", "order__batch_number")
         return render(
             request,
             "manufactur/user/user_detail.html",

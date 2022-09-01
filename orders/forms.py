@@ -46,7 +46,12 @@ class OrderLogForm(ModelForm):
         if len(self.initial):
             operation = data["initial"]["operation"]
         else:
-            operation_id = [val for field in data.values() for key, val in field.items() if key == "operation"]
+            operation_id = [
+                val
+                for field in data.values()
+                for key, val in field.items()
+                if key == "operation"
+            ]
             operation = get_object_or_404(Operation, id=operation_id[0])
         if operation.slug in BUHTOVKA:
             self.fields["color_cores"].initial = "б/ц"

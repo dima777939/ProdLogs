@@ -160,13 +160,23 @@ class OrderLog(models.Model):
         verbose_name="Цвет жилы",
     )
     container = models.CharField(
-        max_length=3, choices=CONTAINER_CHOICE, default="ж/б", verbose_name="Приемный барабан"
+        max_length=3,
+        choices=CONTAINER_CHOICE,
+        default="ж/б",
+        verbose_name="Приемный барабан",
     )
     prev_container = models.CharField(
-        max_length=3, choices=CONTAINER_CHOICE, default="ж/б", verbose_name="Отдающий барабан", blank=True, null=True
+        max_length=3,
+        choices=CONTAINER_CHOICE,
+        default="ж/б",
+        verbose_name="Отдающий барабан",
+        blank=True,
+        null=True,
     )
     number_container = models.PositiveIntegerField(verbose_name="Номер тары")
-    prev_number_container = models.PositiveSmallIntegerField(verbose_name="Номер тары отдающей", blank=True, null=True)
+    prev_number_container = models.PositiveSmallIntegerField(
+        verbose_name="Номер тары отдающей", blank=True, null=True
+    )
     total_in_meters = models.PositiveSmallIntegerField(verbose_name="Метраж")
     date_finished = models.DateField(auto_now_add=True, verbose_name="Дата")
     iteration = models.PositiveSmallIntegerField(blank=True, default=0)

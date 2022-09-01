@@ -10,5 +10,9 @@ urlpatterns = [
         "remove/<int:order_id>/", views.ShelfRemoveView.as_view(), name="shelf_remove"
     ),
     path("get/", views.ShelfGetView.as_view(), name="shelf_get"),
-    path("add_time/<int:order_id>", views.ShelfAddTimeOrderView.as_view(), name="shelf_add_time_order")
+    path(
+        "add_time/<int:order_id>",
+        views.ShelfAddTimeOrderView.as_view(),
+        name="shelf_add_time_order",
+    ),
 ]
