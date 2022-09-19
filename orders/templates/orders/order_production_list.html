@@ -35,13 +35,13 @@
       <th scope="col">Комментарий</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody id="order_production">
   {% for order in orders_in_prod %}
-    <tr>
+    <tr data-id="{{ order.id }}">
       <th scope="row">{{ order.order.batch_number }}</th>
 	  <td>
 		 <a target="_blank" href="{% url 'orders:order_log' order.order.id %}" onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
-			{{ order.order.plastic }} {{ order.order.design }} {{ order.order.purpose }} {{ order.order.cores }}x{{ order.order.crosssection }}
+			 {{ order.order.plastic }} {{ order.order.design }} {{ order.order.purpose }} {{ order.order.cores }}x{{ order.order.crosssection }}
 		 </a>
 	  </td>
       <td>{{ operation }}</td>
@@ -63,4 +63,21 @@
     {% endfor %}
   </tbody>
  </table>
+{% endblock %}
+{% block domready %}
+		$("#order_production").sortable({
+			stop: function(event, ui){
+				order_ordering = {}
+				$("#order_production").children().each(function(){
+					order_ordering[$(this).data("id")] = $(this).index();
+                });
+          $.ajax({
+			  type: "POST",
+			  url: "{% url 'orders:order_p_ordering' %}",
+			  contentType: 'application/json; charset=utf-8',
+	 		  dataType: 'json',
+ 	 		  data: JSON.stringify(order_ordering)
+		  });
+            }
+		});
 {% endblock %}

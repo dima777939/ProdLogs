@@ -1,3 +1,4 @@
+from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -279,3 +280,12 @@ class OrderLogView(View):
     def get(self, request, order_id):
         order_log = OrderLog.objects.filter(order_id=order_id)
         return render(request, "orders/order_log.html", {"order_log": order_log})
+
+
+class OrderProductionOrderingView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request):
+        for id, ordering in self.request_json.items():
+            ProductionOrders.objects.filter(id=id, finished=False).update(
+                ordering=ordering
+            )
+        return self.render_json_response({"saved": "ok"})
