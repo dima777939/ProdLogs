@@ -11,6 +11,11 @@ urlpatterns = [
         name="order_prod_detail",
     ),
     path(
+        "production/ordering/",
+        views.OrderProductionOrderingView.as_view(),
+        name="order_p_ordering",
+    ),
+    path(
         "production/<slug:operation_slug>/",
         views.ProductionOrderView.as_view(),
         name="order_p_list",

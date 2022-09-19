@@ -1,6 +1,9 @@
 from django.db import models
 from django.urls import reverse
+
+
 from manufactur.models import User
+from .fields import OrderingField
 
 
 class Operation(models.Model):
@@ -112,12 +115,13 @@ class ProductionOrders(models.Model):
     order = models.ForeignKey(
         Order, related_name="production", on_delete=models.PROTECT, verbose_name="Заказ"
     )
+    ordering = OrderingField(blank=True, for_field="order")
     count_tara = models.PositiveSmallIntegerField(blank=True, default=0)
     comment = models.CharField(max_length=200, verbose_name="Комментарий")
     finished = models.BooleanField(default=False, verbose_name="Готов", db_index=True)
 
     class Meta:
-        ordering = ("order",)
+        ordering = ("ordering",)
         verbose_name = "Заказ в производство"
         verbose_name_plural = "Заказы в производство"
 
