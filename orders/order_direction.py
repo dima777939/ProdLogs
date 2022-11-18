@@ -8,7 +8,7 @@ from .models import Order, Operation, ProductionOrders, OrderLog
 class OrderDirection:
     DESIGN_CABLE_CHECK = {
         "нг": {
-            ("LS", "LSLTx",): {
+            ("LS", "LTx",): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
                 "bolshaya-skrutka": "liniya-90",
@@ -25,12 +25,20 @@ class OrderDirection:
             },
         },
         "Пнг": {
-            ("LS", "LSLTx", "FRLS", "FRLSLTx",): {
+            ("LS", "LTx",): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "liniya-90",
                 "liniya-90": "buhtovka",
                 "buhtovka": "otk",
-            }
+            },
+            ("FRLS", "FRLSLTx",): {
+                "gruboe-volochenie": "lentoobmotka",
+                "lentoobmotka": "liniya-70",
+                "liniya-70": "bolshaya-skrutka",
+                "bolshaya-skrutka": "liniya-90",
+                "liniya-90": "buhtovka",
+                "buhtovka": "otk",
+            },
         },
     }
     FINISH_OPERATIONS = ["buhtovka"]
