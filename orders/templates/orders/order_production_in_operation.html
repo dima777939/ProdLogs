@@ -17,18 +17,18 @@
 				<h2>Операция {{ operation }}</h2>
 				<form action="{% url 'orders:order_p_list' operation.slug  %}" method="post">
 					{% csrf_token %}
-					{% bootstrap_field order_in_prod_form.order %}
-					{% bootstrap_field order_in_prod_form.operation %}
-					{% bootstrap_field order_in_prod_form.operator %}
-					{% bootstrap_field order_in_prod_form.color_cores %}
-					{% bootstrap_field order_in_prod_form.prev_number_container %}
-					{% bootstrap_field order_in_prod_form.container %}
-					{% bootstrap_field order_in_prod_form.number_container %}
-					{% bootstrap_field order_in_prod_form.total_in_meters %}
-					{% bootstrap_field order_in_prod_form.comment %}
-					{% bootstrap_field order_in_prod_form.iteration  %}
-					{% bootstrap_field order_in_prod_form.id_order_log %}
-					{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
+					{% bootstrap_field order_in_prod_form.order layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.operation layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.operator layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.color_cores layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.prev_number_container layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.container layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.number_container layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.total_in_meters layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.comment layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.iteration  layout="horizontal" %}
+					{% bootstrap_field order_in_prod_form.id_order_log layout="horizontal" %}
+						{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
 				</form>
 				</div>
 			</div>

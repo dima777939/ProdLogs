@@ -37,13 +37,14 @@ class OrderAdmin(admin.ModelAdmin):
     ]
     list_editable = ["footage", "operation", "finished", "discard", "crosssection", "in_production"]
     prepopulated_fields = {"slug": ("batch_number", "crosssection")}
-
+    search_fields = ("batch_number",)
 
 @admin.register(ProductionOrders)
 class ProductionOrdersAdmin(admin.ModelAdmin):
     list_display = ["order", "comment", "finished"]
     list_filter = ["finished"]
     list_editable = ["finished"]
+    search_fields = ("order__batch_number",)
 
 
 @admin.register(OrderLog)
@@ -67,3 +68,4 @@ class OrderLofAdmin(admin.ModelAdmin):
         "number_container",
         "container",
     ]
+    search_fields = ("order__batch_number",)
