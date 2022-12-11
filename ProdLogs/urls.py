@@ -24,6 +24,7 @@ urlpatterns = [
     path("shelf/", include("shelf.urls", namespace="shelf")),
     path("manufactur/", include("manufactur.urls", namespace="manufactur")),
     path("orders/", include("orders.urls", namespace="orders")),
+    path("search/", include("search.urls", namespace="search")),
     path("", MainView.as_view()),
 ]
 

@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     "orders.apps.OrdersConfig",
     "shelf.apps.ShelfConfig",
     "actions.apps.ActionsConfig",
+    "search.apps.SearchConfig",
     "bootstrap4",
+    "bootstrap_datepicker_plus",
 ]
 
 MIDDLEWARE = [
@@ -70,6 +72,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "shelf.context_processors.shelf",
+                "search.context_processors.form_search",
             ],
         },
     },
