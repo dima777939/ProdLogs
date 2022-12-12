@@ -177,9 +177,9 @@ class OrderLog(models.Model):
         blank=True,
         null=True,
     )
-    number_container = models.PositiveIntegerField(verbose_name="Номер тары")
+    number_container = models.PositiveIntegerField(verbose_name="№ тары")
     prev_number_container = models.PositiveSmallIntegerField(
-        verbose_name="Номер тары отдающей", blank=True, null=True
+        verbose_name="№ тары отдающей", blank=True, null=True
     )
     total_in_meters = models.PositiveSmallIntegerField(verbose_name="Метраж")
     date_finished = models.DateField(auto_now_add=True, verbose_name="Дата")

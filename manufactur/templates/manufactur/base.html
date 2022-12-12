@@ -1,5 +1,6 @@
 {% load static %}
 {% load pluralize %}
+{% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -50,13 +51,13 @@
       <li class="nav-item">
         <div {% if request.user.is_staff %}class="count_shelf nav-link text-dark" {% else %}class="nav-link disabled"  tabindex="-1" aria-disabled="true"{% endif %} >
                     <a class="text-dark" data-id="shelf" href="{% url 'shelf:shelf_detail' %}">
-                    <div class="">Стеллаж: <i>{{ shelf|length }}</i> шт.</div>
+                    <div class="">Стеллаж: <i>{{ shelf|length }}</i> {{ shelf|length|rupluralize }}.</div>
                     </a>
         </div>
       </li>
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Поиск">
+    <form class="form-inline my-2 my-lg-0 base_search" action="{% url "search:mane_search" %}" method="get">
+		{% bootstrap_field form_search.search_text show_label=False placeholder="Номер партии" %}
       <button class="btn btn-outline-success my-2 my-sm-0" data-id="search" type="submit">Поиск</button>
     </form>
   <ul class="navbar-nav ml-auto ml-100 mt-lg-0">

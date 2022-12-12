@@ -1,0 +1,76 @@
+{% extends "manufactur/base.html" %}
+{% load bootstrap4 %}
+{% load pluralize %}
+
+{% block title %}
+    Поиск по запросу {{ search_query.search_text }}
+{% endblock %}
+
+{% block content %}
+{% bootstrap_jquery %}
+{{ advanced_form_search.media }}
+<div class="block block_card block_search block_product">
+        <div>
+            <ul>
+                <li class="card ">
+					<div class="card-body">
+                        <h4 class="card-text ">По запросу {{ search_query.search_text }} найдено {{ len_queryset }} {{ len_queryset|rupluralize }}</h4>
+					</div>
+                </li>
+            </ul>
+			<ul>
+			   {% if type_search == "search_for_orderlog"  %}
+                {% for result in result_search %}
+                    <li>
+                        <div class=" card border-light">
+							<div class="card-header bg-gradient bg-secondary m-0 text-center text-d">{{ result.operation }} </div>
+							<div class="card-body m-0">
+								<div class="card-title display-4 text-center text-secondary font-weight-bold">{{ result.order.batch_number }} </div>
+								<div class="card-subtitle text-center text-decoration-underline font-italic m-0">
+									<a href="{{ result.get_absolut_url }}" class="text-dark" target="_blank">
+										{{ result.order.plastic }} {{ result.order.design }} {{ result.order.purpose }} {{ result.order.cores }}x{{ result.order.crosssection }}
+									</a>
+								</div>
+                            	<div>Номер контейнера {{ result.number_container }}</div>
+								<div>Сделано метров {{ result.total_in_meters }}</div>
+								<div>Оператор {{ result.operator }}</div>
+
+							</div>
+							<div class="card-footer text-right m-0">{{ result.date_finished }}</div>
+						</div>
+                    </li>
+                {% endfor %}
+			  {% elif type_search == "search_for_order"%}
+				{% for result_search in result_search%}
+				 <li>
+					<div class=" card border-light">
+						<div class="card-header bg-gradient bg-secondary m-0 text-center text-d">{{ result_search.operation }} </div>
+						<div class="card-body m-0">
+							<div class="card-title display-4 text-center text-secondary font-weight-bold">{{ result_search.batch_number }} </div>
+							<div class="card-subtitle text-center text-decoration-underline font-italic m-0">
+								<a href="{% url 'orders:order_log' result_search.id  %}" class="text-dark" target="_blank">
+									{{ result_search.plastic }} {{ result_search.design }} {{ result_search.purpose }} {{ result_search.cores }}x{{ result_search.crosssection }}
+								</a>
+							</div>
+						</div>
+						<div class="card-footer text-right m-0">{{ result_search.updated }}</div>
+					</div>
+				 </li>
+				{% endfor %}
+			</ul>
+				{% endif %}
+			</div>
+			<div class="block form-filter">
+				<form action="{% url 'search:advanced_search' %}" method="get">
+					{% bootstrap_form advanced_form_search %}
+					<div class="inline-group">
+						{% bootstrap_button content="Применить фильтр" button_type="submit" button_class="btn btn-outline-secondary" size="sm" %}
+						<a href="">Сбросить</a>
+					</div>
+
+				</form>
+			</div>
+
+    </div>
+{% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+{% endblock %}

@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.filter
 def rupluralize(value, args=("заказ", "заказа", "заказов")):
-    number = abs(int(value))
+    number = abs(int(value)) if str(value).isdigit() else 0
     a = number % 10
     b = number % 100
 
