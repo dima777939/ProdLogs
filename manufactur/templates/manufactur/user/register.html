@@ -1,4 +1,5 @@
 {% extends 'manufactur/base.html' %}
+{% load bootstrap4 %}
 {% block title %}
     Регистрация
 {% endblock %}
@@ -6,25 +7,15 @@
 <div class="text-center">
     <h1>Регистрация</h1>
     <p>Регистрация нового пользователя</p>
-    <form  action="." method="post">
-    {% csrf_token %}
-  <div class="form-group">
-    <label for="formGroupExampleInput">Логин</label><br>
-      {{ reg_form.username }}
-  </div>
-   <div class="form-group">
-    <label for="formGroupExampleInput">Имя</label><br>
-      {{ reg_form.first_name }}
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Пароль</label><br>
-      {{ reg_form.password }}
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword2">Повторите пароль</label><br>
-      {{ reg_form.password2 }}
-  </div>
-  <button type="submit" class="btn btn-primary">Регистрация</button>
-</form>
+        <div class="form-filter block_action">
+            <form  action="." method="post">
+                {% csrf_token %}
+                {% bootstrap_field reg_form.username %}
+                {% bootstrap_field reg_form.first_name label="Логин" %}
+                {% bootstrap_field reg_form.password %}
+                {% bootstrap_field reg_form.password2 %}
+                {% bootstrap_button content="Вход" button_type="submit" button_class="btn btn-outline-dark" size="md" %}
+            </form>
+        </div>
 </div>
 {% endblock %}

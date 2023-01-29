@@ -11,25 +11,28 @@
 	    {% endfor %}
 	{% endif %}
 	</div>
+
 	<section class="form_prod">
 	<div class="container-sm">
 		<div class="row border-1 justify-content-center  card-body">
 				<h2>Операция {{ operation }}</h2>
-				<form action="{% url 'orders:order_p_list' operation.slug  %}" method="post">
-					{% csrf_token %}
-					{% bootstrap_field order_in_prod_form.order layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.operation layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.operator layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.color_cores layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.prev_number_container layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.container layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.number_container layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.total_in_meters layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.comment layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.iteration  layout="horizontal" %}
-					{% bootstrap_field order_in_prod_form.id_order_log layout="horizontal" %}
-						{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
-				</form>
+                    <div class="block_action form-filter">
+                        <form action="{% url 'orders:order_p_list' operation.slug  %}" method="post">
+                            {% csrf_token %}
+                            {% bootstrap_field order_in_prod_form.order layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.operation layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.operator layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.color_cores layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.prev_number_container layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.container layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.number_container layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.total_in_meters layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.comment layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.iteration  layout="horizontal" %}
+                            {% bootstrap_field order_in_prod_form.id_order_log layout="horizontal" %}
+                            {% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-secondary" size="md" %}
+                        </form>
+                    </div>
 				</div>
 			</div>
 	</section>
