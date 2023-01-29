@@ -79,7 +79,7 @@ class Order(models.Model):
     )
     cores = models.IntegerField(verbose_name="Количество жил", choices=CORES_CHOICE)
     crosssection = models.CharField(
-        max_length=3, verbose_name="Поперечное сечение", choices=CROSSSECTION_CHOICE
+        max_length=4, verbose_name="Поперечное сечение", choices=CROSSSECTION_CHOICE
     )
     footage = models.IntegerField(verbose_name="Метраж", default=15000)
     created = models.DateField(verbose_name="Дата добавления", auto_now_add=True)
@@ -160,7 +160,7 @@ class OrderLog(models.Model):
     color_cores = models.CharField(
         max_length=3,
         choices=COLOR_CORES_CHOICE,
-        default="нет",
+        default="б/ц",
         verbose_name="Цвет жилы",
     )
     container = models.CharField(
@@ -179,7 +179,7 @@ class OrderLog(models.Model):
     )
     number_container = models.PositiveIntegerField(verbose_name="№ тары")
     prev_number_container = models.PositiveSmallIntegerField(
-        verbose_name="№ тары отдающей", blank=True, null=True
+        verbose_name="№ тары отдающей"
     )
     total_in_meters = models.PositiveSmallIntegerField(verbose_name="Метраж")
     date_finished = models.DateField(auto_now_add=True, verbose_name="Дата")

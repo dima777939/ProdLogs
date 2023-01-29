@@ -143,3 +143,5 @@ LOGOUT_URL = "logout"
 
 
 SHELF_SESSION_ID = "shelf"
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

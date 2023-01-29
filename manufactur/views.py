@@ -39,8 +39,8 @@ class UserRegisterView(View):
             return render(
                 request, "manufactur/user/reg_done.html", {"new_user": new_user}
             )
-        else:
-            return HttpResponse("None")
+        return render(request, "manufactur/user/register.html", {"reg_form": reg_form})
+
 
 
 class UserLoginView(View):
