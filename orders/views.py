@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
 from django.contrib import messages
+from django.views.generic import ListView
 
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
@@ -11,27 +12,27 @@ from .order_direction import OrderDirection as OD
 from actions.services import ActionUser
 
 
-class OrderListView(View):
-    def get(self, request, operation_slug=None):
-        operation = None
-        operations = Operation.objects.all()
-        orders = Order.objects.filter(
-            finished=False, discard=False, in_production=False
-        )
-        shelf_order_form = ShelfAddOrderForm()
+class OrderListListView(ListView):
+    template_name = "orders/orders_list.html"
+    paginate_by = 10
+    context_object_name = "orders"
+    shelf_order_form = ShelfAddOrderForm()
+    operation = None
+    queryset = Order.objects.filter(finished=False, discard=False, in_production=False)
+
+    def get_queryset(self):
+        operation_slug = self.kwargs.get("operation_slug", None)
         if operation_slug:
-            operation = get_object_or_404(Operation, slug=operation_slug)
-            orders = orders.filter(operation=operation)
-        return render(
-            request,
-            "orders/orders_list.html",
-            {
-                "operation": operation,
-                "operations": operations,
-                "orders": orders,
-                "shelf_order_form": shelf_order_form,
-            },
-        )
+            self.queryset = self.queryset.filter(operation__slug=operation_slug)
+            self.operation = get_object_or_404(Operation, slug=operation_slug)
+        return self.queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context["operation"] = self.operation
+        context["operations"] = Operation.objects.all()
+        context["shelf_order_form"] = self.shelf_order_form
+        return context
 
 
 class ProductionOrderView(View):

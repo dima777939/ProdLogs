@@ -1,4 +1,5 @@
 {% extends 'manufactur/base.html' %}
+{% load bootstrap4 %}
 {% block title %}
     {% if operation %}{{ operation.name }}{% else %}Заказы{% endif %}
 {% endblock %}
@@ -89,7 +90,8 @@
     </div>
 </div>
 {% endwith %}
-{% endfor %}
+{% endfor %}<br>
+{% bootstrap_pagination page_obj extra=request.GET.urlencode %}
 {% endblock %}
 {% block domready %}
 	// order lost
