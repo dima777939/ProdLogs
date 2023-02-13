@@ -1,10 +1,12 @@
 {% extends 'manufactur/base.html' %}
+{% load bootstrap4 %}
 {% block title %}Завод{% endblock %}
 {% block content %}
     <h1>Сделанные заказы</h1>
     {% for action in actions %}
 		{% include "actions/action_detail.html" %}
     {% endfor %}
+{% bootstrap_pagination page_obj extra=request.GET.urlencode %}
 {% endblock %}
 {% block domready %}
 		setTimeout(function(){location.reload();}, 30000);

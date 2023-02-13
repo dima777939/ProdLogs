@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 
 from actions.models import Actions
 from .models import User, Contact
@@ -13,16 +14,20 @@ from .forms import LoginForm, RegistrationForm
 from actions.services import ActionUser
 
 
-class MainView(View):
-    def get(self, request):
-        actions = []
-        if request.user.is_active:
-            actions = Actions.objects.exclude(user=request.user)
-            following_ids = request.user.following.values_list("id", flat=True)
+class MainListView(ListView):
+    template_name = "manufactur/user/main.html"
+    paginate_by = 15
+    context_object_name = "actions"
+    queryset = []
+
+    def get_queryset(self):
+        if self.request.user.is_active:
+            self.queryset = Actions.objects.exclude(user=self.request.user)
+            following_ids = self.request.user.following.values_list("id", flat=True)
             if following_ids:
-                actions = actions.filter(user_id__in=following_ids)
-            actions = actions.select_related("user").prefetch_related("target_ct")[:15]
-        return render(request, "manufactur/user/main.html", {"actions": actions})
+                self.queryset = self.queryset.filter(user_id__in=following_ids)
+            self.queryset = self.queryset.select_related("user").prefetch_related("user__rel_from_set__user_to_id")[:60]
+            return self.queryset
 
 
 class UserRegisterView(View):
