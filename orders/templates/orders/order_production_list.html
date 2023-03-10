@@ -64,20 +64,23 @@
   </tbody>
  </table>
 {% endblock %}
-{% block domready %}
-		$("#order_production").sortable({
-			stop: function(event, ui){
-				order_ordering = {}
-				$("#order_production").children().each(function(){
-					order_ordering[$(this).data("id")] = $(this).index();
-                });
-          $.ajax({
-			  type: "POST",
-			  url: "{% url 'orders:order_p_ordering' %}",
-			  contentType: 'application/json; charset=utf-8',
-	 		  dataType: 'json',
- 	 		  data: JSON.stringify(order_ordering)
-		  });
-            }
-		});
-{% endblock %}
+
+	{% block domready %}
+		{% if request.user.is_staff %}
+			$("#order_production").sortable({
+				stop: function(event, ui){
+					order_ordering = {}
+					$("#order_production").children().each(function(){
+						order_ordering[$(this).data("id")] = $(this).index();
+					});
+			  $.ajax({
+				  type: "POST",
+				  url: "{% url 'orders:order_p_ordering' %}",
+				  contentType: 'application/json; charset=utf-8',
+				  dataType: 'json',
+				  data: JSON.stringify(order_ordering)
+			  });
+				}
+			});
+		{% endif %}
+	{% endblock %}

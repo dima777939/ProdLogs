@@ -1,8 +1,7 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.views import View
 
 
@@ -12,8 +11,7 @@ from .forms import ShelfAddOrderForm, ShelfAddCommentForm
 from actions.services import ActionUser
 
 
-@method_decorator(login_required, name="dispatch")
-class ShelfAddView(View):
+class ShelfAddView(LoginRequiredMixin, View):
     def post(self, request):
         if request.is_ajax():
             order_id = request.POST.get("id")
@@ -63,7 +61,9 @@ class ShelfRemoveView(View):
             return redirect("shelf:shelf_detail")
 
 
-class ShelfDetailView(View):
+class ShelfDetailView(PermissionRequiredMixin, View):
+    permission_required = "orders.productionorders_add"
+
     def get(self, request):
         shelf = Shelf(request)
         for item in shelf:
@@ -76,7 +76,9 @@ class ShelfDetailView(View):
         return render(request, "shelf/shelf_detail.html", {"shelf": shelf})
 
 
-class ShelfGetView(View):
+class ShelfGetView(PermissionRequiredMixin, View):
+    permission_required = "orders.productionorders_add"
+
     def get(self, request):
         shelf = Shelf(request)
         for item in shelf:

@@ -82,8 +82,6 @@ a.dark:hover {
 
 .block_card {
     flex-direction: column;
-    /*min-height: 750px;*/
-    /*min-width: 700px;*/
     margin: 15px;
 }
 
@@ -115,7 +113,6 @@ a.dark:hover {
 html {
     position: relative;
     min-height: 100%;
-    /*padding: 35px 100px;*/
 }
 
 .footer {
@@ -180,9 +177,9 @@ td select, td input {
     border-radius: 3px;
 }
 
-#id_order, #id_operation, #id_operator{
-    pointer-events: none;
-}
+/*#id_order, #id_operation, #id_operator{*/
+/*    !*pointer-events: none;*!*/
+/*}*/
 
 .link_button {
     display: block;
