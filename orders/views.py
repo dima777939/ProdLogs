@@ -1,4 +1,5 @@
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -12,13 +13,14 @@ from .order_direction import OrderDirection as OD
 from actions.services import ActionUser
 
 
-class OrderListListView(ListView):
+class OrderListListView(PermissionRequiredMixin, ListView):
     template_name = "orders/orders_list.html"
     paginate_by = 10
     context_object_name = "orders"
     shelf_order_form = ShelfAddOrderForm()
     operation = None
     queryset = Order.objects.filter(finished=False, discard=False, in_production=False)
+    permission_required = "orders.view_order"
 
     def get_queryset(self):
         operation_slug = self.kwargs.get("operation_slug", None)
@@ -35,7 +37,9 @@ class OrderListListView(ListView):
         return context
 
 
-class ProductionOrderView(View):
+class ProductionOrderView(PermissionRequiredMixin, View):
+    permission_required = "orders.view_productionorders"
+
     ITERATION_OPERATIONS = [
         "gruboe-volochenie",
         "liniya-70",
@@ -283,7 +287,9 @@ class OrderLogView(View):
         return render(request, "orders/order_log.html", {"order_log": order_log})
 
 
-class OrderProductionOrderingView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+class OrderProductionOrderingView(PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin, View):
+    permission_required = "orders.change_productionorders"
+
     def post(self, request):
         for id, ordering in self.request_json.items():
             ProductionOrders.objects.filter(id=id, finished=False).update(

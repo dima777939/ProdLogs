@@ -1,10 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from orders.models import Order
 from .forms import ManePageSearchForm, AdvancedSearchForm
 from .services import Search, AdvancedSearch
 
 
-class BaseSearchView(ListView):
+class BaseSearchView(LoginRequiredMixin, ListView):
     template_name = "search/search.html"
     paginate_by = 10
     context_object_name = "result_search"
@@ -39,8 +40,7 @@ class BaseSearchView(ListView):
         context["type_search"] = self.type_search
         return context
 
-
-class AdvancedSearchListView(ListView):
+class AdvancedSearchListView(LoginRequiredMixin, ListView):
     template_name = "search/search.html"
     search_form = AdvancedSearchForm
     paginate_by = 10

@@ -137,9 +137,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 AUTH_USER_MODEL = "manufactur.User"
 
-LOGIN_REDIRECT_URL = "manufactur"
-LOGIN_URL = "login"
-LOGOUT_URL = "logout"
+LOGIN_REDIRECT_URL = "/manufactur/"
+LOGIN_URL = "/manufactur/login/"
+LOGOUT_URL = "/manufactur/logout/"
 
 
 SHELF_SESSION_ID = "shelf"

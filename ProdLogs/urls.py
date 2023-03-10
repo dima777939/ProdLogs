@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from manufactur.views import MainView
+from manufactur.views import MainListView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,7 +25,7 @@ urlpatterns = [
     path("manufactur/", include("manufactur.urls", namespace="manufactur")),
     path("orders/", include("orders.urls", namespace="orders")),
     path("search/", include("search.urls", namespace="search")),
-    path("", MainView.as_view()),
+    path("", MainListView.as_view()),
 ]
 
 if settings.DEBUG:
