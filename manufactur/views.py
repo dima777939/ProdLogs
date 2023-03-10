@@ -1,20 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, JsonResponse
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 
 from actions.models import Actions
 from .models import User, Contact
 from orders.models import OrderLog
-from .forms import LoginForm, RegistrationForm
+from .forms import RegistrationForm
 from actions.services import ActionUser
 
 
-class MainListView(ListView):
+class MainListView(LoginRequiredMixin, ListView):
     template_name = "manufactur/user/main.html"
     paginate_by = 15
     context_object_name = "actions"
@@ -26,11 +23,12 @@ class MainListView(ListView):
             following_ids = self.request.user.following.values_list("id", flat=True)
             if following_ids:
                 self.queryset = self.queryset.filter(user_id__in=following_ids)
-            self.queryset = self.queryset.select_related("user").prefetch_related("user__rel_from_set__user_to_id")[:60]
+            self.queryset = self.queryset.select_related("user").prefetch_related("user__following")[:60]
             return self.queryset
 
 
-class UserRegisterView(View):
+class UserRegisterView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "manufactur.user_add"
     def get(self, request):
         reg_form = RegistrationForm()
         return render(request, "manufactur/user/register.html", {"reg_form": reg_form})
@@ -47,31 +45,7 @@ class UserRegisterView(View):
         return render(request, "manufactur/user/register.html", {"reg_form": reg_form})
 
 
-
-class UserLoginView(View):
-    def get(self, request):
-        form = LoginForm()
-        return render(request, "manufactur/user/login.html", {"form": form})
-
-    def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            user = authenticate(
-                request, username=cd["username"], password=cd["password"]
-            )
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return redirect(reverse("manufactur:manufacture"))
-            else:
-                return HttpResponse("Аккаунт не активен")
-        else:
-            return render(request, "manufactur/user/login.html", {"form": form})
-
-
-@method_decorator(login_required, name="dispatch")
-class UserListView(View):
+class UserListView(LoginRequiredMixin, View):
     def get(self, request, team=None):
         if team:
             users = User.objects.filter(is_active=True, team=team)
@@ -80,8 +54,7 @@ class UserListView(View):
         return render(request, "manufactur/user/list_user.html", {"users": users})
 
 
-@method_decorator(login_required, name="dispatch")
-class UserDetailView(View):
+class UserDetailView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username, is_active=True)
         orders = OrderLog.objects.filter(operator=user).order_by("-date_finished", "operation", "order__batch_number")
@@ -92,8 +65,7 @@ class UserDetailView(View):
         )
 
 
-@method_decorator(login_required, name="dispatch")
-class UserFollowView(View):
+class UserFollowView(LoginRequiredMixin, View):
     def post(self, request):
         if request.is_ajax():
             user_id = request.POST.get("id")

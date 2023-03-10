@@ -13,7 +13,7 @@
             {% bootstrap_field form.username %}
             {% bootstrap_field form.password %}
             {% bootstrap_button content="Вход" button_type="submit" button_class="btn btn-outline-dark" size="md" %}
-
+			<input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>
 </div><br><br>

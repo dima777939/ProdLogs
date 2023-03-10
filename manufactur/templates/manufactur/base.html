@@ -26,13 +26,13 @@
         <a class="nav-link" data-id="main" href="{% url 'manufactur:manufacture' %}">Главная<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a {% if request.user.is_staff %}class="nav-link text-dark" href="{% url 'orders:orders_finish' %}" {% else %}class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"{% endif %} data-id="finish_orders">Выполненные заказы</a>
-      </li>
-      <li class="nav-item">
         <a {% if request.user.is_active %}class="nav-link text-dark" href="{% url 'orders:order_p_list' shelf.get_link %}" {% else %}class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"{% endif %} data-id="orders_in_prod">Заказы в работу</a>
       </li>
       <li class="nav-item">
         <a {% if request.user.is_staff %}class="nav-link text-dark" href="{% url 'orders:order_list' %} " {% else %}class="nav-link disabled"  tabindex="-1" aria-disabled="true"{% endif %}  data-id="orders">Заказы</a>
+      </li>
+	  <li class="nav-item">
+        <a {% if request.user.is_staff %}class="nav-link text-dark" href="{% url 'orders:orders_finish' %}" {% else %}class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"{% endif %} data-id="finish_orders">Выполненные заказы</a>
       </li>
       <li class="nav-item">
         <div class="dropdown">
@@ -49,11 +49,13 @@
 </div>
       </li>
       <li class="nav-item">
-        <div {% if request.user.is_staff %}class="count_shelf nav-link text-dark" {% else %}class="nav-link disabled"  tabindex="-1" aria-disabled="true"{% endif %} >
-                    <a class="text-dark" data-id="shelf" href="{% url 'shelf:shelf_detail' %}">
-                    <div class="">Стеллаж: <i>{{ shelf|length }}</i> {{ shelf|length|rupluralize }}.</div>
-                    </a>
-        </div>
+        {% if request.user.is_staff %}
+			<div class="count_shelf nav-link text-dark" >
+			  <a class="text-dark" data-id="shelf" href="{% url 'shelf:shelf_detail' %}">
+				  <div class="">Стеллаж: <i>{{ shelf|length }}</i> {{ shelf|length|rupluralize }}.</div>
+			  </a>
+        	</div>
+	    {% endif %}
       </li>
     </ul>
     <form class="form-inline my-2 my-lg-0 base_search" action="{% url "search:mane_search" %}" method="get">
