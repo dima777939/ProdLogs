@@ -7,7 +7,6 @@ from .fields import OrderingField
 
 
 class Operation(models.Model):
-
     name = models.CharField(max_length=50, db_index=True)
     slug = models.SlugField(max_length=50, db_index=True)
 
@@ -23,7 +22,6 @@ class Operation(models.Model):
 
 
 class Order(models.Model):
-
     PLASTIC_CHOICE = [
         ("ВВГ", "ВВГ"),
         ("ППГ", "ППГ"),
@@ -111,7 +109,6 @@ class Order(models.Model):
 
 
 class ProductionOrders(models.Model):
-
     order = models.ForeignKey(
         Order, related_name="production", on_delete=models.PROTECT, verbose_name="Заказ"
     )

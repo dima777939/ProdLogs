@@ -113,7 +113,10 @@ class OrderLogForm(ModelForm):
                 raise forms.ValidationError(
                     f"Превышение общей длинны заказа. Заказ {order.footage}м. Выход {len_bight * total_meters}м. Бухта {len_bight}м. Длинна бухт {total_meters}м."
                 )
-            elif ((int(order.footage) + 200) - (order_total_meter + (len_bight * total_meters))) < 0:
+            elif (
+                (int(order.footage) + 200)
+                - (order_total_meter + (len_bight * total_meters))
+            ) < 0:
                 raise forms.ValidationError(
                     f"Метраж указан больше чем в заказе. Длинна заказа {order.footage} м. Остаток {order.footage - order_total_meter}"
                 )
@@ -137,7 +140,10 @@ class OrderLogForm(ModelForm):
             order=order, operation=operation
         ).values_list("number_container", flat=True)
         # Проверка на дублирование номера катушки
-        if number_container in num_containers_in_operation and operation.slug not in BUHTOVKA:
+        if (
+            number_container in num_containers_in_operation
+            and operation.slug not in BUHTOVKA
+        ):
             raise forms.ValidationError(
                 f"Катушка №{number_container} уже присутствует в заказе"
             )

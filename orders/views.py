@@ -9,9 +9,10 @@ from django.views.generic import ListView
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm
 from shelf.forms import ShelfAddOrderForm
-from .order_direction import OrderDirection as OD
+from .order_direction import OrderDirection
 from actions.services import ActionUser
 
+OD = OrderDirection()
 
 class OrderListListView(PermissionRequiredMixin, ListView):
     template_name = "orders/orders_list.html"
@@ -194,7 +195,7 @@ class ProductionOrderView(PermissionRequiredMixin, View):
                 return redirect(
                     reverse("orders:order_p_list", args=[order_prod.operation.slug])
                 )
-            OD.next_operation(OD, order_prod, operation_slug)
+            OD.next_operation(order_prod, operation_slug)
             message = f"Заказ {order_prod.batch_number} на операции {order_prod.operation} готов."
             ActionUser(
                 request.user,
@@ -238,7 +239,7 @@ class ProdOrderDetailView(View):
     def get(self, request, order_id, operation):
         operation_obj = get_object_or_404(Operation, slug=operation)
         prev_operation_slug = OD.get_previous_operation(
-            OD, operation=operation_obj, order_id=order_id
+            operation=operation_obj, order_id=order_id
         )
         operation_prev = get_object_or_404(Operation, slug=prev_operation_slug)
         order_prod = get_object_or_404(ProductionOrders, id=order_id)
@@ -287,7 +288,9 @@ class OrderLogView(View):
         return render(request, "orders/order_log.html", {"order_log": order_log})
 
 
-class OrderProductionOrderingView(PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin, View):
+class OrderProductionOrderingView(
+    PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin, View
+):
     permission_required = "orders.change_productionorders"
 
     def post(self, request):

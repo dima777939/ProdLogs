@@ -23,12 +23,15 @@ class MainListView(LoginRequiredMixin, ListView):
             following_ids = self.request.user.following.values_list("id", flat=True)
             if following_ids:
                 self.queryset = self.queryset.filter(user_id__in=following_ids)
-            self.queryset = self.queryset.select_related("user").prefetch_related("user__following")[:60]
+            self.queryset = self.queryset.select_related("user").prefetch_related(
+                "user__following"
+            )[:60]
             return self.queryset
 
 
 class UserRegisterView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "manufactur.user_add"
+
     def get(self, request):
         reg_form = RegistrationForm()
         return render(request, "manufactur/user/register.html", {"reg_form": reg_form})
@@ -57,7 +60,9 @@ class UserListView(LoginRequiredMixin, View):
 class UserDetailView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username, is_active=True)
-        orders = OrderLog.objects.filter(operator=user).order_by("-date_finished", "operation", "order__batch_number")
+        orders = OrderLog.objects.filter(operator=user).order_by(
+            "-date_finished", "operation", "order__batch_number"
+        )
         return render(
             request,
             "manufactur/user/user_detail.html",
