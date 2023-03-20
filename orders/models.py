@@ -62,7 +62,7 @@ class Order(models.Model):
         Operation,
         related_name="order_operation",
         on_delete=models.CASCADE,
-        default="Грубое волочение",
+        default=1,
         verbose_name="Операция",
         db_index=True,
     )
@@ -80,7 +80,7 @@ class Order(models.Model):
         max_length=4, verbose_name="Поперечное сечение", choices=CROSSSECTION_CHOICE
     )
     footage = models.IntegerField(verbose_name="Метраж", default=15000)
-    created = models.DateField(verbose_name="Дата добавления", auto_now_add=True)
+    created = models.DateTimeField(verbose_name="Дата добавления", auto_now_add=True)
     completion = models.DateField(verbose_name="Дата завершения")
     updated = models.DateField(verbose_name="Дата обновления", auto_now=True)
     finished = models.BooleanField(verbose_name="Готов", default=False, db_index=True)

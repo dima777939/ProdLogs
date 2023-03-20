@@ -1,13 +1,14 @@
+from datetime import datetime, timedelta
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.contrib import messages
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 
 from .models import Order, Operation, ProductionOrders, OrderLog
-from .forms import OrderLogForm
+from .forms import OrderLogForm, UploadDataOrdersForm
 from shelf.forms import ShelfAddOrderForm
 from .order_direction import OrderDirection
 from actions.services import ActionUser
@@ -299,3 +300,30 @@ class OrderProductionOrderingView(
                 ordering=ordering
             )
         return self.render_json_response({"saved": "ok"})
+
+
+class OrderDataUploadView(PermissionRequiredMixin, FormView, View):
+    template_name = "orders/orders_upload.html"
+    form_class = UploadDataOrdersForm
+    success_url = reverse_lazy("orders:order_upload")
+    permission_required = "orders.add_order"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = self.form_class()
+        context["file"] = self.get_file()
+        return context
+
+    @staticmethod
+    def get_file():
+        current_time = datetime.now() - timedelta(minutes=2)
+        file = Order.objects.filter(created__gte=current_time)
+        return file
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response({"form": form})
+

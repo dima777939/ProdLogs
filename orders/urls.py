@@ -5,6 +5,7 @@ app_name = "orders"
 
 urlpatterns = [
     path("", views.OrderListListView.as_view(), name="order_list"),
+    path("upload", views.OrderDataUploadView.as_view(), name="order_upload"),
     path(
         "production/detail/<slug:operation>/<int:order_id>/",
         views.ProdOrderDetailView.as_view(),
