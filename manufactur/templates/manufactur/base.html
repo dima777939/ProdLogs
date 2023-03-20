@@ -36,7 +36,7 @@
       </li>
       <li class="nav-item">
         <div class="dropdown">
-        <button {% if request.user.is_staff %} class="btn btn-light dropdown-toggle"{% else %} type="button" class="btn btn-light dropdown-toggle disabled"{% endif %} id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button {% if request.user.is_active %} class="btn btn-light"{% else %} type="button" class="btn btn-light disabled"{% endif %} id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Операторы
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
