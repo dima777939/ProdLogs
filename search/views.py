@@ -1,8 +1,10 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse
+from django.views import View
 from django.views.generic import ListView
-from orders.models import Order
+from orders.models import Order, OrderLog
 from .forms import ManePageSearchForm, AdvancedSearchForm
-from .services import Search, AdvancedSearch
+from .services import Search, AdvancedSearch, ExportExcel
 
 
 class BaseSearchView(LoginRequiredMixin, ListView):
@@ -40,6 +42,7 @@ class BaseSearchView(LoginRequiredMixin, ListView):
         context["type_search"] = self.type_search
         return context
 
+
 class AdvancedSearchListView(LoginRequiredMixin, ListView):
     template_name = "search/search.html"
     search_form = AdvancedSearchForm
@@ -48,9 +51,10 @@ class AdvancedSearchListView(LoginRequiredMixin, ListView):
     advanced_form_search = AdvancedSearchForm
     type_search = "search_for_order"
     len_queryset = None
+    export_to = "page"
 
     def get_form(self, *args, **kwargs):
-        form = self.advanced_form_search(data=self.request.GET)
+        form = self.search_form(data=self.request.GET)
         if form.is_valid():
             return form.cleaned_data
 
@@ -58,11 +62,11 @@ class AdvancedSearchListView(LoginRequiredMixin, ListView):
         cd = self.get_form()
         if cd:
             search = AdvancedSearch(cd)
-            queryset = search.get_orders_filter()
+            queryset = search.get_orders_filter(self.export_to)
             self.type_search = "search_for_orderlog" if cd["operation"] or cd["operator"] else "search_for_order"
             self.len_queryset = len(queryset)
             return queryset
-        queryset = Order.objects.filter(in_production=True)
+        queryset = OrderLog.objects.all()[:100]
         self.len_queryset = len(queryset)
         return queryset
 
@@ -72,3 +76,21 @@ class AdvancedSearchListView(LoginRequiredMixin, ListView):
         context["len_queryset"] = self.len_queryset
         context["type_search"] = self.type_search
         return context
+
+
+class ExportExcelView(PermissionRequiredMixin, AdvancedSearchListView, ExportExcel):
+    export_to = "file"
+    permission_required = "orders.add_order"
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        response = self.get_excel_response(queryset)
+        return response
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        pass
+
+
+
+
+
