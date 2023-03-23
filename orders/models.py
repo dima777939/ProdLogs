@@ -46,11 +46,11 @@ class Order(models.Model):
     CROSSSECTION_CHOICE = [
         ("0.5", "0.5"),
         ("0.75", "0.75"),
-        ("1.0", "1.0"),
+        ("1", "1.0"),
         ("1.5", "1.5"),
         ("2.5", "2.5"),
-        ("4.0", "4.0"),
-        ("6.0", "6.0"),
+        ("4", "4.0"),
+        ("6", "6.0"),
         ("10", "10"),
     ]
 
@@ -100,7 +100,7 @@ class Order(models.Model):
 
     def __str__(self):
         return (
-            f"№{self.batch_number} {self.operation} {self.plastic} {self.design} {self.purpose} "
+            f"№{self.batch_number} {self.plastic} {self.design} {self.purpose} "
             f"{self.cores}x{self.crosssection}  {self.footage} м."
         )
 
