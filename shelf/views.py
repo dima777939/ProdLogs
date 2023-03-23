@@ -62,7 +62,7 @@ class ShelfRemoveView(View):
 
 
 class ShelfDetailView(PermissionRequiredMixin, View):
-    permission_required = "orders.productionorders_add"
+    permission_required = "orders.add_productionorders"
 
     def get(self, request):
         shelf = Shelf(request)
@@ -77,7 +77,7 @@ class ShelfDetailView(PermissionRequiredMixin, View):
 
 
 class ShelfGetView(PermissionRequiredMixin, View):
-    permission_required = "orders.productionorders_add"
+    permission_required = "orders.add_productionorders"
 
     def get(self, request):
         shelf = Shelf(request)

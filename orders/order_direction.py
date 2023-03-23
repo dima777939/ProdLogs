@@ -8,14 +8,20 @@ from .models import Order, Operation, ProductionOrders, OrderLog
 class OrderDirection:
     DESIGN_CABLE_CHECK = {
         "нг": {
-            ("LS", "LTx",): {
+            (
+                "LS",
+                "LTx",
+            ): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
                 "bolshaya-skrutka": "liniya-90",
                 "liniya-90": "buhtovka",
                 "buhtovka": "otk",
             },
-            ("FRLS", "FRLSLTx",): {
+            (
+                "FRLS",
+                "FRLSLTx",
+            ): {
                 "gruboe-volochenie": "lentoobmotka",
                 "lentoobmotka": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
@@ -25,13 +31,19 @@ class OrderDirection:
             },
         },
         "Пнг": {
-            ("LS", "LTx",): {
+            (
+                "LS",
+                "LTx",
+            ): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "liniya-90",
                 "liniya-90": "buhtovka",
                 "buhtovka": "otk",
             },
-            ("FRLS", "FRLSLTx",): {
+            (
+                "FRLS",
+                "FRLSLTx",
+            ): {
                 "gruboe-volochenie": "lentoobmotka",
                 "lentoobmotka": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
@@ -96,7 +108,7 @@ class OrderDirection:
                 Order.objects.filter(id=order_prod.id).update(
                     operation=operation,
                     in_production=False,
-                    finished=self.check_finished(self, operation_slug),
+                    finished=self.check_finished(operation_slug),
                 )
 
     @staticmethod

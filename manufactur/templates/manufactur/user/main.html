@@ -2,11 +2,13 @@
 {% load bootstrap4 %}
 {% block title %}Завод{% endblock %}
 {% block content %}
+	{% if actions %}
     <h1>Сделанные заказы</h1>
-    {% for action in actions %}
-		{% include "actions/action_detail.html" %}
-    {% endfor %}
-{% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+	    {% for action in actions %}
+			{% include "actions/action_detail.html" %}
+		{% endfor %}
+		{% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+	{% endif %}
 {% endblock %}
 {% block domready %}
 		setTimeout(function(){location.reload();}, 30000);

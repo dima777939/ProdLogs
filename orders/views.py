@@ -1,17 +1,19 @@
+from datetime import datetime, timedelta
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.contrib import messages
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 
 from .models import Order, Operation, ProductionOrders, OrderLog
-from .forms import OrderLogForm
+from .forms import OrderLogForm, UploadDataOrdersForm
 from shelf.forms import ShelfAddOrderForm
-from .order_direction import OrderDirection as OD
+from .order_direction import OrderDirection
 from actions.services import ActionUser
 
+OD = OrderDirection()
 
 class OrderListListView(PermissionRequiredMixin, ListView):
     template_name = "orders/orders_list.html"
@@ -194,7 +196,7 @@ class ProductionOrderView(PermissionRequiredMixin, View):
                 return redirect(
                     reverse("orders:order_p_list", args=[order_prod.operation.slug])
                 )
-            OD.next_operation(OD, order_prod, operation_slug)
+            OD.next_operation(order_prod, operation_slug)
             message = f"Заказ {order_prod.batch_number} на операции {order_prod.operation} готов."
             ActionUser(
                 request.user,
@@ -238,7 +240,7 @@ class ProdOrderDetailView(View):
     def get(self, request, order_id, operation):
         operation_obj = get_object_or_404(Operation, slug=operation)
         prev_operation_slug = OD.get_previous_operation(
-            OD, operation=operation_obj, order_id=order_id
+            operation=operation_obj, order_id=order_id
         )
         operation_prev = get_object_or_404(Operation, slug=prev_operation_slug)
         order_prod = get_object_or_404(ProductionOrders, id=order_id)
@@ -287,7 +289,9 @@ class OrderLogView(View):
         return render(request, "orders/order_log.html", {"order_log": order_log})
 
 
-class OrderProductionOrderingView(PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin, View):
+class OrderProductionOrderingView(
+    PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin, View
+):
     permission_required = "orders.change_productionorders"
 
     def post(self, request):
@@ -296,3 +300,30 @@ class OrderProductionOrderingView(PermissionRequiredMixin, CsrfExemptMixin, Json
                 ordering=ordering
             )
         return self.render_json_response({"saved": "ok"})
+
+
+class OrderDataUploadView(PermissionRequiredMixin, FormView, View):
+    template_name = "orders/orders_upload.html"
+    form_class = UploadDataOrdersForm
+    success_url = reverse_lazy("orders:order_upload")
+    permission_required = "orders.add_order"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = self.form_class()
+        context["file"] = self.get_file()
+        return context
+
+    @staticmethod
+    def get_file():
+        current_time = datetime.now() - timedelta(minutes=2)
+        file = Order.objects.filter(created__gte=current_time)
+        return file
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response({"form": form})
+

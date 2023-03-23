@@ -7,7 +7,6 @@ from .fields import OrderingField
 
 
 class Operation(models.Model):
-
     name = models.CharField(max_length=50, db_index=True)
     slug = models.SlugField(max_length=50, db_index=True)
 
@@ -23,7 +22,6 @@ class Operation(models.Model):
 
 
 class Order(models.Model):
-
     PLASTIC_CHOICE = [
         ("ВВГ", "ВВГ"),
         ("ППГ", "ППГ"),
@@ -48,11 +46,11 @@ class Order(models.Model):
     CROSSSECTION_CHOICE = [
         ("0.5", "0.5"),
         ("0.75", "0.75"),
-        ("1.0", "1.0"),
+        ("1", "1.0"),
         ("1.5", "1.5"),
         ("2.5", "2.5"),
-        ("4.0", "4.0"),
-        ("6.0", "6.0"),
+        ("4", "4.0"),
+        ("6", "6.0"),
         ("10", "10"),
     ]
 
@@ -64,7 +62,7 @@ class Order(models.Model):
         Operation,
         related_name="order_operation",
         on_delete=models.CASCADE,
-        default="Грубое волочение",
+        default=1,
         verbose_name="Операция",
         db_index=True,
     )
@@ -82,7 +80,7 @@ class Order(models.Model):
         max_length=4, verbose_name="Поперечное сечение", choices=CROSSSECTION_CHOICE
     )
     footage = models.IntegerField(verbose_name="Метраж", default=15000)
-    created = models.DateField(verbose_name="Дата добавления", auto_now_add=True)
+    created = models.DateTimeField(verbose_name="Дата добавления", auto_now_add=True)
     completion = models.DateField(verbose_name="Дата завершения")
     updated = models.DateField(verbose_name="Дата обновления", auto_now=True)
     finished = models.BooleanField(verbose_name="Готов", default=False, db_index=True)
@@ -102,7 +100,7 @@ class Order(models.Model):
 
     def __str__(self):
         return (
-            f"№{self.batch_number} {self.operation} {self.plastic} {self.design} {self.purpose} "
+            f"№{self.batch_number} {self.plastic} {self.design} {self.purpose} "
             f"{self.cores}x{self.crosssection}  {self.footage} м."
         )
 
@@ -111,7 +109,6 @@ class Order(models.Model):
 
 
 class ProductionOrders(models.Model):
-
     order = models.ForeignKey(
         Order, related_name="production", on_delete=models.PROTECT, verbose_name="Заказ"
     )

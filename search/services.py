@@ -1,3 +1,6 @@
+import openpyxl
+from django.http import HttpResponse
+
 from orders.models import Order, OrderLog
 
 
@@ -36,10 +39,10 @@ class AdvancedSearch:
         self.finished = cd["finished"]
         self.discard = cd["discard"]
 
-    def get_orders_filter(self):
+    def get_orders_filter(self, export_to):
         orders = (
             self.search_for_orderlog()
-            if self.operation or self.operator
+            if self.operation or self.operator or export_to == "file"
             else self.search_for_order()
         )
         return orders
@@ -85,3 +88,45 @@ class AdvancedSearch:
         if self.crosssection:
             orderlog = orderlog.filter(order__crosssection=self.crosssection)
         return orderlog
+
+
+class ExportExcel:
+    def get_excel_response(self, orders) -> HttpResponse:
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Orders"
+        columns = [
+            "Номер партии",
+            "Операция",
+            "Исполнитель",
+            "Марка кабеля",
+            "Метраж",
+            "№ контейнера",
+            "Дата",
+            "Статус",
+            "Последнее обновление",
+        ]
+        ws.append(columns)
+        for order in orders:
+            row = [
+                order.order.batch_number,
+                order.operation.__str__(),
+                order.operator.__str__(),
+                order.order.__str__(),
+                order.total_in_meters,
+                order.number_container,
+                order.date_finished,
+                self.get_status(order),
+                order.order.updated,
+            ]
+            ws.append(row)
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = 'attachment; filename="orders_log.xlsx"'
+        wb.save(response)
+        return response
+
+    @staticmethod
+    def get_status(order):
+        return "Готов" if order.order.finished else "На производстве"

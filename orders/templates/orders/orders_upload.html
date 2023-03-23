@@ -1,0 +1,52 @@
+{% extends 'manufactur/base.html' %}
+{% load bootstrap4 %}
+{% block title %}
+	Загрузка заказов из файла
+{% endblock %}
+{% block content %}
+<div class="text-center"><br><br>
+    <h1>Выбрать файл</h1>
+    <div class="block_action form-filter">
+        <form enctype="multipart/form-data" action="{% url "orders:order_upload" %}" method="post">
+            {% csrf_token %}
+            {% bootstrap_field form.file %}
+			{% bootstrap_button content="Отправить" button_type="submit" button_class="btn btn-outline-dark" size="md" %}
+			<input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>
+{% if file %}
+	<table class="table table-striped align-middle table-responsive-md table-hover text-center shelf">
+		<thead>
+			<tr>
+				<th>
+					Новые заказы
+				</th>
+				<th>
+                    Добавленны
+                </th>
+				<th>
+                    Дата завершения
+                </th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for order in file %}
+				<tr>
+					<td>{{ order }}</td>
+				    <td>{{ order.created }}</td>
+				    <td>{{ order.completion }}</td>
+				</tr>
+
+			{% endfor %}
+		</tbody>
+	</table>
+{% endif %}
+
+
+
+{% endblock %}
+{% block domready %}
+	$('.invalid-feedback').css('display', 'block')
+{% endblock %}
+2023-03-18 07:41:21.915303

@@ -61,11 +61,16 @@
 				{% endif %}
 			</div>
 			<div class="block form-filter">
-				<form action="{% url 'search:advanced_search' %}" method="get">
+				<form method="get">
 					{% bootstrap_form advanced_form_search %}
-					<div class="inline-group">
-						{% bootstrap_button content="Применить фильтр" button_type="submit" button_class="btn btn-outline-secondary" size="sm" %}
+					<div class="input-group">
+						<input type="submit" formaction="{% url 'search:advanced_search' %}" value="Применить фильтр" class="btn btn-outline-secondary" />
 						<a href="">Сбросить</a>
+					</div>
+					<br>
+					<div class="input-group">
+						<input type="submit" formaction="{% url 'search:export_search' %}" value="Скачать" class="btn btn-outline-secondary" />
+
 					</div>
 
 				</form>
