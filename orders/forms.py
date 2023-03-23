@@ -193,7 +193,7 @@ class UploadDataOrdersForm(forms.Form):
     def get_rows(file):
         workbook = load_workbook(file)
         worksheet = workbook.active
-        rows = worksheet.iter_rows(min_row=2, values_only=True)
+        rows = worksheet.iter_rows(min_row=2, max_col=8, values_only=True)
         return rows
 
     def clean_file(self):
