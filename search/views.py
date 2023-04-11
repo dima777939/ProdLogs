@@ -63,7 +63,14 @@ class AdvancedSearchListView(LoginRequiredMixin, ListView):
         if cd:
             search = AdvancedSearch(cd)
             queryset = search.get_orders_filter(self.export_to)
-            self.type_search = "search_for_orderlog" if cd["operation"] or cd["operator"] else "search_for_order"
+            self.type_search = (
+                "search_for_orderlog"
+                if cd["operation"]
+                or cd["operator"]
+                or cd["start_date"]
+                or cd["end_date"]
+                else "search_for_order"
+            )
             self.len_queryset = len(queryset)
             return queryset
         queryset = OrderLog.objects.all()[:100]
@@ -89,8 +96,3 @@ class ExportExcelView(PermissionRequiredMixin, AdvancedSearchListView, ExportExc
 
     def get_context_data(self, *, object_list=None, **kwargs):
         pass
-
-
-
-
-

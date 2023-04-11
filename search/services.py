@@ -1,5 +1,8 @@
+from datetime import time
+
 import openpyxl
 from django.http import HttpResponse
+from django.utils import timezone
 
 from orders.models import Order, OrderLog
 
@@ -42,7 +45,11 @@ class AdvancedSearch:
     def get_orders_filter(self, export_to):
         orders = (
             self.search_for_orderlog()
-            if self.operation or self.operator or export_to == "file"
+            if self.operation
+            or self.operator
+            or export_to == "file"
+            or self.start_date
+            or self.end_date
             else self.search_for_order()
         )
         return orders
@@ -51,10 +58,6 @@ class AdvancedSearch:
         orders = Order.objects.filter(discard=self.discard, finished=self.finished)
         if self.batch_number:
             orders = orders.filter(batch_number=self.batch_number)
-        if self.start_date:
-            orders = orders.filter(updated__gt=self.start_date)
-        if self.end_date:
-            orders = orders.filter(updated__lt=self.end_date)
         if self.design:
             orders = orders.filter(design=self.design)
         if self.purpose:
@@ -66,19 +69,32 @@ class AdvancedSearch:
         return orders
 
     def search_for_orderlog(self):
-        orderlog = OrderLog.objects.filter(
-            order__discard=self.discard, order__finished=self.finished
-        ).select_related("operation", "order", "operator")
+        orderlog = (
+            OrderLog.objects.filter(
+                order__discard=self.discard, order__finished=self.finished
+            )
+            .select_related("operation", "order", "operator")
+            .order_by("-date_finished")
+        )
         if self.batch_number:
             orderlog = orderlog.filter(order__batch_number=self.batch_number)
         if self.operation:
             orderlog = orderlog.filter(operation=self.operation)
         if self.operator:
             orderlog = orderlog.filter(operator=self.operator)
+        my_date = timezone.make_aware(
+                    timezone.datetime.combine(self.start_date, time(hour=7)),
+                    timezone.get_current_timezone(),
+                )
         if self.start_date:
-            orderlog = orderlog.filter(date_finished__gt=self.start_date)
+            orderlog = orderlog.filter(date_finished__gte=my_date)
         if self.end_date:
-            orderlog = orderlog.filter(date_finished__lt=self.end_date)
+            orderlog = orderlog.filter(
+                date_finished__lte=timezone.make_aware(
+                    timezone.datetime.combine(self.end_date, time(hour=7)),
+                    timezone.get_current_timezone(),
+                )
+            )
         if self.design:
             orderlog = orderlog.filter(order__design=self.design)
         if self.purpose:
