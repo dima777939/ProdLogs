@@ -67,13 +67,15 @@ class OrderLofAdmin(admin.ModelAdmin):
         "total_in_meters",
         "date_finished",
         "otk",
+        "discard",
     ]
-    list_filter = ["order", "operator", "operation", "date_finished", "otk"]
+    list_filter = ["operator", "operation", "date_finished", "otk", "discard",]
     list_editable = [
         "operator",
         "color_cores",
         "total_in_meters",
         "number_container",
         "container",
+        "discard",
     ]
     search_fields = ("order__batch_number",)

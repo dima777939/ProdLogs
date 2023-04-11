@@ -6,6 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.contrib import messages
 from django.views.generic import ListView, FormView
+from django.views.generic.base import TemplateResponseMixin
 
 from .models import Order, Operation, ProductionOrders, OrderLog
 from .forms import OrderLogForm, UploadDataOrdersForm
@@ -14,6 +15,7 @@ from .order_direction import OrderDirection
 from actions.services import ActionUser
 
 OD = OrderDirection()
+
 
 class OrderListListView(PermissionRequiredMixin, ListView):
     template_name = "orders/orders_list.html"
@@ -53,6 +55,8 @@ class ProductionOrderView(PermissionRequiredMixin, View):
     LINE_OPERATIONS = [
         "bolshaya-skrutka",
         "liniya-90",
+        "peremotka",
+        "otk",
     ]
 
     def get(
@@ -235,6 +239,8 @@ class ProdOrderDetailView(View):
     LINE_OPERATIONS = [
         "bolshaya-skrutka",
         "liniya-90",
+        "peremotka",
+        "otk",
     ]
 
     def get(self, request, order_id, operation):
@@ -275,6 +281,47 @@ class OrderDetailView(View):
                 "order": order,
             },
         )
+
+
+class OrderOtkListView(PermissionRequiredMixin, ListView):
+    permission_required = "orders.change_order"
+    template_name = "orders/order_discard_list.html"
+    queryset = OrderLog.objects.filter(
+        operation__slug__in=["buhtovka", "peremotka"],
+        otk=False
+    )
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        order_id = self.kwargs.get("order_id")
+        queryset = queryset.filter(order_id=order_id)
+        return queryset
+
+
+class OrderOtkView(PermissionRequiredMixin, View):
+    permission_required = "orders.change_order"
+
+    def get(self, request, **kwargs):
+        order_log_id = kwargs.get("orderlog_id")
+        discard = True if kwargs.get("discard") else False
+        OrderLog.objects.filter(id=order_log_id).update(discard=discard, otk=True)
+        order_log = OrderLog.objects.get(id=order_log_id)
+        order_prod = order_log.order
+        if kwargs.get("shelf"):
+            return redirect(reverse("orders:order_discard_all"))
+        if OD.check_orderlog_from_otk(order_prod.id):
+            return redirect(reverse("orders:order_discard_list", args=[order_prod.id]))
+        OD.next_operation(order_prod, order_prod.operation.slug)
+        return redirect(reverse("orders:order_p_list", args=[order_prod.operation.slug]))
+
+
+class OrderDiscardListView(PermissionRequiredMixin, TemplateResponseMixin, View):
+    template_name = "orders/orders_discard_all.html"
+    permission_required = "orders:change_order"
+
+    def get(self, request):
+        order_log_list = OrderLog.objects.filter(discard=True)
+        return self.render_to_response({"orderlog_list": order_log_list})
 
 
 class OrderFinish(View):
@@ -326,4 +373,3 @@ class OrderDataUploadView(PermissionRequiredMixin, FormView, View):
 
     def form_invalid(self, form):
         return self.render_to_response({"form": form})
-

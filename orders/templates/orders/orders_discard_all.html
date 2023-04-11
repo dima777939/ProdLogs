@@ -1,0 +1,41 @@
+{% extends 'manufactur/base.html' %}
+{% block title %}{{ operation }}{% endblock %}
+{% block content %}
+    <h3>Контроль</h3>
+	<h4>Продукция на OTK</h4>
+  <br>
+ <table class="table table-striped align-middle table-responsive-md table-hover text-center shelf">
+  <thead>
+    <tr>
+	  <th scope="col">Номер партии</th>
+      <th scope="col">Кабель</th>
+
+      <th scope="col">Операция</th>
+
+		  <th scope="col">Номер барабана</th>
+		  <th scope="col">Метраж</th>
+      <th>Выбор</th>
+	  <th>Забраковать</th>
+      <th scope="col">Комментарий</th>
+    </tr>
+  </thead>
+  <tbody id="order_production">
+  {% for order in orderlog_list %}
+    <tr>
+      <th scope="row">{{ order.order.batch_number }}</th>
+	  <td>
+		 <a target="_blank" href="{% url 'orders:order_log' order.order.id %}" onclick="window.open(this.href,this.target,'width=1200,height=600,scrollbars=1');return false;">
+			 {{ order.order.plastic }} {{ order.order.design }} {{ order.order.purpose }} {{ order.order.cores }}x{{ order.order.crosssection }}
+		 </a>
+	  </td>
+      <td>{{ order.operation }}</td>
+	  <td>{{ order.number_container }}</td>
+      <td>{{ order.total_in_meters }}</td>
+	  <td ><a class="link_button color_finished" href="{% url 'orders:order_discard' order.id 0 "shelf"%}">Проверить заказ</a></td>
+	  <td ><a class="link_button color_buhtovka" href="{% url 'orders:order_discard' order.id 2 "shelf"%}">Брак</a></td>
+      <td>{{ order.comment }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+{% endblock %}
