@@ -179,10 +179,11 @@ class OrderLog(models.Model):
         verbose_name="№ тары отдающей"
     )
     total_in_meters = models.PositiveSmallIntegerField(verbose_name="Метраж")
-    date_finished = models.DateField(auto_now_add=True, verbose_name="Дата")
+    date_finished = models.DateTimeField(auto_now_add=True, verbose_name="Дата")
     iteration = models.PositiveSmallIntegerField(blank=True, default=0)
     comment = models.CharField(max_length=1000, verbose_name="Комментарий", blank=True)
     otk = models.BooleanField(default=False, db_index=True)
+    discard = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ("date_finished",)

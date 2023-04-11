@@ -7,10 +7,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="wrapper">
   <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,7 @@
 			  </a>
 		  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
             <a class="dropdown-item" href={% url 'orders:order_upload' %}>Загрузить заказы</a>
+		    <a class="dropdown-item" href={% url 'orders:order_discard_all' %}>Заказы с отклонениями</a>
            </div>
 		</div>
       </li>

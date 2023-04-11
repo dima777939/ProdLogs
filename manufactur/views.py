@@ -1,5 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models.functions import TruncMonth
 from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView
@@ -60,9 +62,9 @@ class UserListView(LoginRequiredMixin, View):
 class UserDetailView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username, is_active=True)
-        orders = OrderLog.objects.filter(operator=user).order_by(
-            "-date_finished", "operation", "order__batch_number"
-        )
+        orders = OrderLog.objects.filter(
+            operator=user, date_finished__gte=TruncMonth(timezone.now())
+        ).order_by("-date_finished")
         return render(
             request,
             "manufactur/user/user_detail.html",

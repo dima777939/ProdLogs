@@ -8,52 +8,43 @@ from .models import Order, Operation, ProductionOrders, OrderLog
 class OrderDirection:
     DESIGN_CABLE_CHECK = {
         "нг": {
-            (
-                "LS",
-                "LTx",
-            ): {
+            ("LS", "LTx",): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
                 "bolshaya-skrutka": "liniya-90",
-                "liniya-90": "buhtovka",
-                "buhtovka": "otk",
+                "liniya-90": "peremotka",
+                "peremotka": "otk",
             },
-            (
-                "FRLS",
-                "FRLSLTx",
-            ): {
+            ("FRLS", "FRLSLTx",): {
                 "gruboe-volochenie": "lentoobmotka",
                 "lentoobmotka": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
                 "bolshaya-skrutka": "liniya-90",
-                "liniya-90": "buhtovka",
-                "buhtovka": "otk",
+                "liniya-90": "peremotka",
+                "peremotka": "otk",
             },
         },
         "Пнг": {
-            (
-                "LS",
-                "LTx",
-            ): {
+            ("LS", "LTx",): {
                 "gruboe-volochenie": "liniya-70",
                 "liniya-70": "liniya-90",
                 "liniya-90": "buhtovka",
                 "buhtovka": "otk",
+                "otk": "otk",
             },
-            (
-                "FRLS",
-                "FRLSLTx",
-            ): {
+            ("FRLS", "FRLSLTx",): {
                 "gruboe-volochenie": "lentoobmotka",
                 "lentoobmotka": "liniya-70",
                 "liniya-70": "bolshaya-skrutka",
                 "bolshaya-skrutka": "liniya-90",
                 "liniya-90": "buhtovka",
                 "buhtovka": "otk",
+                "otk": "otk",
             },
         },
     }
-    FINISH_OPERATIONS = ["buhtovka"]
+    FINISH_OPERATIONS = ["buhtovka", "peremotka"]
+    OTK = ["otk"]
 
     def get_previous_operation(self, order_id, operation):
         order = get_object_or_404(ProductionOrders, id=order_id)
@@ -92,6 +83,13 @@ class OrderDirection:
         )
         order_in_prod.save()
 
+    @staticmethod
+    def check_orderlog_from_otk(order_id):
+        unfinished_order_log = OrderLog.objects.filter(
+            order_id=order_id, otk=False, operation__slug__in=["buhtovka", "peremotka"]
+        )
+        return unfinished_order_log.exists()
+
     def next_operation(self, order_prod, operation_slug):
         # Удаление заказа с производства
         ProductionOrders.objects.filter(
@@ -107,9 +105,13 @@ class OrderDirection:
                 operation = get_object_or_404(Operation, slug=get_operation)
                 Order.objects.filter(id=order_prod.id).update(
                     operation=operation,
-                    in_production=False,
-                    finished=self.check_finished(operation_slug),
+                    in_production=self.check_finished(operation_slug),
+                    finished=self.check_otk(operation_slug),
                 )
+                if self.check_finished(operation_slug):
+                    ProductionOrders.objects.create(
+                        order=order_prod, comment="Добавлен по событию"
+                    )
 
     @staticmethod
     def buhtovka(order_prod, order_log, order_in_prod):
@@ -132,6 +134,9 @@ class OrderDirection:
             for number, queryset in order_log_values_group
         ]
         return order_log_group
+
+    def check_otk(self, slug):
+        return True if slug in self.OTK else False
 
     def check_finished(self, slug):
         return True if slug in self.FINISH_OPERATIONS else False
